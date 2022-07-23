@@ -79,31 +79,32 @@ class TopicModelTuner(object):
         if docs != None :
             self.docs=docs
              
-        self.embeddings = self.model.encode(self.docs)
+        self.embeddings = self.model.embedding_model.encode(self.docs)
     
         
     def reduce(self) :
         
-        if self.embeddings == None :
-            raise AttributeError('No embeddings, either set via embeddings= or call createEmbeddings()')
+        # if self.embeddings == None :
+        #     raise AttributeError('No embeddings, either set via embeddings= or call createEmbeddings()')
         
         self.reducer_model.fit(self.embeddings)
     
     def createVizReduction(self) :
 
-        if self.embeddings == None :
-            raise AttributeError('No embeddings not set: either set via embeddings= or call createEmbeddings()')
+        # if self.embeddings == None :
+        #     raise AttributeError('No embeddings not set: either set via embeddings= or call createEmbeddings()')
 
         self.vizReducer = copy(self.reducer_model)
-        self.vizReducer.fit(self.embeddings, n_components=2)
+        self.vizReducer.n_components = 2
+        self.vizReducer.fit(self.embeddings)
 
 
     def getVizCoords(self) :
         
-        if self.viz_reducer == None :
+        if self.vizReducer == None :
             raise AttributeError('Visualization reduction not performed, call createVizReduction first')
 
-        return self.vizReducer.embedding_[:,0], self.umap_model.embedding_[:,1]
+        return self.vizReducer.embedding_[:,0], self.vizReducer.embedding_[:,1]
 
     def visualizeEmbeddings(self, min_cluster_size, min_sample_size) :
 
@@ -203,7 +204,6 @@ class TopicModelTuner(object):
     
         if self.reducer_model.embedding_.sum() == 0  :
             raise AttributeError('Reducer not run yet, call createReduction() first')
-        
 
         ResultsDF = self._runTests(self.reducer_model.embedding_ , cluster_size_range, sample_size_range, iters=iters)
         fig = px.parallel_coordinates(ResultsDF,
