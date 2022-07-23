@@ -216,7 +216,9 @@ class TopicModelTuner(object):
         resultSummaryDF = self.summarizeResults(ResultsDF)
         return fig, resultSummaryDF
     
-    def summarizeResults(self, summaryDF : pd.DataFrame=self.ResultsDF) :
+    def summarizeResults(self, summaryDF : pd.DataFrame=None) :
+        if summaryDF == None :
+            summaryDF = pd.DataFrame()
         resultSummaryDF = pd.DataFrame()
         for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
