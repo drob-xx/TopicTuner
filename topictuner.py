@@ -191,8 +191,8 @@ class TopicModelTuner(object):
                 uncategorized.append(0)
         RunResultsDF['number_uncategorized'] = uncategorized
     
-        if self.ResultsDF == None :
-            self.ResultsDF = pd.DataFrame()
+        # if self.ResultsDF == None :
+        #     self.ResultsDF = pd.DataFrame()
     
         self.ResultsDF = pd.concat([self.ResultsDF, RunResultsDF])
         self.ResultsDF.reset_index(inplace=True, drop=True)
