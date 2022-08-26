@@ -94,17 +94,17 @@ class TopicModelTuner(object):
         # if self.embeddings == None :
         #     raise AttributeError('No embeddings not set: either set via embeddings= or call createEmbeddings()')
 
-        self.vizReducer = copy(self.reducer_model)
-        self.vizReducer.n_components = 2
-        self.vizReducer.fit(self.embeddings)
+        self.viz_reducer = copy(self.reducer_model)
+        self.viz_reducer.n_components = 2
+        self.viz_reducer.fit(self.embeddings)
 
 
     def getVizCoords(self) :
         
-        if self.vizReducer == None :
+        if self.viz_reducer == None :
             raise AttributeError('Visualization reduction not performed, call createVizReduction first')
 
-        return self.vizReducer.embedding_[:,0], self.vizReducer.embedding_[:,1]
+        return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
     def visualizeEmbeddings(self, min_cluster_size, min_sample_size) :
 
@@ -222,4 +222,5 @@ class TopicModelTuner(object):
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
         resultSummaryDF.reset_index(inplace=True, drop=True)
         return resultSummaryDF
-        
+
+
