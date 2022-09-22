@@ -29,7 +29,7 @@ class Reducer_Model :
     def fit(self, x, y) :
         return self
     
-    def transform(self) :
+    def transform(self, embeddings) :
         return self.embeddings_ 
 
 class TopicModelTuner(object):
