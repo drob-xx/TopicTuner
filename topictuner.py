@@ -44,7 +44,7 @@ class TopicModelTuner(object):
                                         min_samples=min_samples,
                                         min_cluster_size=min_cluster_size,
                                         )
-        aReducer_model = Reducer_Model(self.reducer_model)
+        aReducer_model = Reducer_Model(self.reducer_model.embeddings_)
         return BERTopic(umap_model=aReducer_model,
                         hdbscan_model=hdbscan_model)
         
