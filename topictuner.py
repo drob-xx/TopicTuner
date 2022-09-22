@@ -195,7 +195,7 @@ class TopicModelTuner(object):
     
         return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
         
-    def a_runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
+    def _runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
         results = []
         for _ in tqdm(range(iters)) :
             min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
