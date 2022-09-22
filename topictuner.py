@@ -20,11 +20,35 @@ import joblib
 import pandas as pd
 
 import plotly.express as px
+from debugpy._vendored.pydevd._pydevd_frame_eval.pydevd_frame_evaluator import self
+
+class Reducer_Model :
+    
+    def __init__(self, embeddings):
+        self.embeddings_ = embeddings
+        
+    def fit(self, x, y) :
+        return self
+    
+    def transform(self) :
+        return self.embeddings_ 
 
 class TopicModelTuner(object):
     '''
     classdocs
     '''
+    
+    def getBERTopicModel(self, min_cluster_size, min_samples):
+        hdbscan_model = HDBSCAN(metric='euclidean',
+                                        cluster_selection_method='eom',
+                                        prediction_data=True,
+                                        min_samples=min_samples,
+                                        min_cluster_size=min_cluster_size,
+                                        )
+        aReducer_model = Reducer_Model(self.reducer_model)
+        return BERTopic(umap_model=aReducer_model,
+                        hdbscan_model=hdbscan_model)
+        
     
     def __init__(self, embeddings=None, 
                  embedding_model=None, 
@@ -172,7 +196,7 @@ class TopicModelTuner(object):
     
         return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
         
-    def _runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
+    def a_runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
         results = []
         for _ in tqdm(range(iters)) :
             min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
