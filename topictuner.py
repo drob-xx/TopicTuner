@@ -21,31 +21,44 @@ import pandas as pd
 
 import plotly.express as px
 
-class Reducer_Model :
-    
-    def __init__(self, embeddings):
-        self.embeddings_ = embeddings
-        
-    def fit(self, x, y) :
-        return self
-    
-    def transform(self, embeddings) :
-        return self.embeddings_ 
 
 class TopicModelTuner(object):
     '''
-    classdocs
+    TopicModelTuner - TMT - wraps a BERTopic instance and provides tools for 
+    optimizing the min_clust_size and min_sample parameters of an HDBSCAN
+    clustering instance when applied against a give UMAP reduction.
+    
+    A TMT instance can be initialized in a 'stand-alone' mode - without reliance on
+    an already existing BERTopic instance, or it can be bootstrapped from an 
+    existing BERTopic instance - either one already fit, or not. In either case, after 
+    obtaining suitable parameters its getBERTopicModel() function can be called
+    to return a functioning BERTopic instance with the desired parameters.
+    
+    TMT does not explicitly support tuning the UMAP instance, but could certainly be 
+    used in a situation where multiple UMAP instances have been generated with 
+    differing parameters. In this case TMT would be used to produce an individual
+    set of HDBSCAN parameters for each UMAP instance which could then be compared for 
+    the best results. 
     '''
     
     def getBERTopicModel(self, min_cluster_size, min_samples):
+        '''
+        Returns a BERTopic model with the specified HDBSCAN parameters.
+        Since most, if not all, tuning will involve testing a range
+        of parameters, the user is left to specify their chosen best settings.
+        
+        The substantial reason for this function is to create a UMAP_facade object
+        as an argument to the BERTopic constructor, since any given HDBSCAN parameter
+        set will be specific to a particular run of UMAP. 
+        '''
         hdbscan_model = HDBSCAN(metric='euclidean',
                                         cluster_selection_method='eom',
                                         prediction_data=True,
-                                        min_samples=min_samples,
                                         min_cluster_size=min_cluster_size,
+                                        min_samples=min_samples,
                                         )
-        aReducer_model = Reducer_Model(self.reducer_model.embedding_)
-        return BERTopic(umap_model=aReducer_model,
+ 
+        return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
                         hdbscan_model=hdbscan_model)
         
     
@@ -57,7 +70,7 @@ class TopicModelTuner(object):
                  reducer_components=5,
                  verbose=2):
         '''
-        Constructor
+        When initializing 
         '''
         
         self.verbose=verbose
@@ -91,6 +104,27 @@ class TopicModelTuner(object):
                                reducer_model=BERTopicModel.umap_model,
                                hdbscan_model=BERTopicModel.hdbscan_model,
                                verbose=verbose)
+
+    def getBERTopicModel(self, min_cluster_size, min_samples):
+        '''
+        Returns a BERTopic model with the specified HDBSCAN parameters.
+        Since most, if not all, tuning will involve testing a range
+        of parameters, the user is left to specify their chosen best settings.
+        
+        The substantial reason for this function is to create a UMAP_facade object
+        as an argument to the BERTopic initialization, since any given HDBSCAN parameter
+        set will be specific to a particular run of UMAP. 
+        '''
+        hdbscan_model = HDBSCAN(metric='euclidean',
+                                        cluster_selection_method='eom',
+                                        prediction_data=True,
+                                        min_cluster_size=min_cluster_size,
+                                        min_samples=min_samples,
+                                        )
+ 
+        return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
+                        hdbscan_model=hdbscan_model)
+
     
     def createEmbeddings(self, docs=None) :
         if self.embeddings != None :
@@ -247,3 +281,30 @@ class TopicModelTuner(object):
         return resultSummaryDF
 
 
+class UMAP_facade :
+    '''
+    Since by default BERTopic re-runs UMAP each time fit() is called,
+    this class allows for a BERTopic instance to have fixed UMAP embedding. 
+    Necessary to achieve the best optimized HDBSCAN results because each 
+    UMAP reduction will vary and require slightly different HDBSCAN parameters.
+    '''
+    def __init__(self, umap_embeddings):
+        '''
+        Pass in the umap_embeddings you want to optimize HDBSCAN for. 
+        ''' 
+
+        self.embeddings_ = umap_embeddings
+        
+    def fit(self, x, y) :
+        '''
+        Does nothing except conform to the interface BERTopic expects.
+        '''
+        
+        return self
+    
+    def transform(self, embeddings=None) :
+        '''
+        Returns fixed embeddings,
+        NOTE RE EMBEDDINGS PARAM
+        ''' 
+        return self.embeddings_ 
