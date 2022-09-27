@@ -264,9 +264,10 @@ class TopicModelTuner(object):
         with open(path, 'rb') as file :    
             return joblib.load(file)
 
-    def runHDBSCAN(self, min_cluster_size, min_sample_size) :
+    def runHDBSCAN(self, min_cluster_size, sample_size) :
       '''
-      Fit HDBSCAN to the reduced embeddings.
+      Cluster reduced embeddings. sample_size must be more than 0 and less than
+      or equal to min_cluster_size.
       '''
 
         if self.hdbscan_model == None :
@@ -285,13 +286,17 @@ class TopicModelTuner(object):
         
     def _runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
     '''
-    Internal call to run a passel of HDBSCAN within a given range of parameters
+    Internal call to run a passel of HDBSCAN within a given range of parameters.
+    cluster_size_range is a list of ints and sample_size_pct_range is a list of percentages e.g.
+    [.1, .25, .50, .75, 1]. One of the percent values will be randomly chosen and 
+    multiplied by the randomly chosen cluster_size_range to produce a min_samples
+    value for HDBSCAN. The calulated min_samples value must be larger than 0 and not 
+    greater than the selected cluster_size_range value.
     '''
         results = []
         for _ in tqdm(range(iters)) :
             min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
             min_sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
-            # results.append((min_cluster_size, min_sample_size, RunHDBSCAN(model, embedding, min_cluster_size, min_sample_size)))
             results.append((min_cluster_size, min_sample_size, self.runHDBSCAN(min_cluster_size, min_sample_size)))
         RunResultsDF = pd.DataFrame()
         RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
