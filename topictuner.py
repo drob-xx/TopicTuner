@@ -91,10 +91,10 @@ class TopicModelTuner(object):
 
     @staticmethod
     def wrapBERTopicModel(BERTopicModel : BERTopic, verbose=2) :
-    '''
-    This is a helper function which returns a TMT instance using the values from a BERTopic Model.
-    placeholder(FIXED)
-    '''
+      '''
+      This is a helper function which returns a TMT instance using the values from a BERTopic Model.
+      placeholder(FIXED)
+      '''
   
       return TopicModelTuner(embedding_model=BERTopicModel.embedding_model,
                                reducer_model=BERTopicModel.umap_model,
