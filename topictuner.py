@@ -158,8 +158,8 @@ class TopicModelTuner(object):
       '''
       Create embeddings using the embedding model specified during initiliazation.
       '''
-        if self.embeddings != None :
-        raise AttributeError('Embeddings already created, reset by setting embeddings=None')
+      if self.embeddings != None :
+      raise AttributeError('Embeddings already created, reset by setting embeddings=None')
         
       if (self.docs == None) and (docs == None) :
         raise AttributeError('Docs not specified, set docs=)
