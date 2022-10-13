@@ -155,10 +155,10 @@ class TopicModelTuner(object):
 
     
     def createEmbeddings(self, docs=None) :
-    '''
-    Create embeddings using the embedding model specified during initiliazation.
-    '''
-      if self.embeddings != None :
+      '''
+      Create embeddings using the embedding model specified during initiliazation.
+      '''
+        if self.embeddings != None :
         raise AttributeError('Embeddings already created, reset by setting embeddings=None')
         
       if (self.docs == None) and (docs == None) :
@@ -171,25 +171,25 @@ class TopicModelTuner(object):
     
         
     def reduce(self) :
-    '''
-    Reduce dimensionality of the embeddings
-    '''
+      '''
+      Reduce dimensionality of the embeddings
+      '''
       if self.embeddings == None :
         raise AttributeError('No embeddings, either set via embeddings= or call createEmbeddings()')
         
       self.reducer_model.fit(self.embeddings)
     
     def createVizReduction(self) :
-    '''
-    Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
-    '''
+      '''
+      Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
+      '''
 
-        if self.embeddings == None :
-            raise AttributeError('No embeddings set: either set via embeddings= or call createEmbeddings()')
+      if self.embeddings == None :
+          raise AttributeError('No embeddings set: either set via embeddings= or call createEmbeddings()')
 
-        self.viz_reducer = copy(self.reducer_model)
-        self.viz_reducer.n_components = 2
-        self.viz_reducer.fit(self.embeddings)
+      self.viz_reducer = copy(self.reducer_model)
+      self.viz_reducer.n_components = 2
+      self.viz_reducer.fit(self.embeddings)
 
 
     def getVizCoords(self) :
@@ -202,32 +202,32 @@ class TopicModelTuner(object):
         return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
     def visualizeEmbeddings(self, min_cluster_size, min_sample_size) :
-    '''
-    Visualize the embeddings, clustered according to the provided parameters.
-    If docs has been set then the first 400 chars of each document will be 
-    shown as a hover over each data point.
+      '''
+      Visualize the embeddings, clustered according to the provided parameters.
+      If docs has been set then the first 400 chars of each document will be 
+      shown as a hover over each data point.
+  
+      Returns a plotly fig object
+      '''
+      topics = self.runHDBSCAN(min_cluster_size, min_sample_size)
 
-    Returns a plotly fig object
-    '''
-        topics = self.runHDBSCAN(min_cluster_size, min_sample_size)
+      VizDF = pd.DataFrame()
+      VizDF['x'], VizDF['y'] = self.getVizCoords()
 
-        VizDF = pd.DataFrame()
-        VizDF['x'], VizDF['y'] = self.getVizCoords()
+      if self.docs != None :
+          wrappedtext = ['<br>'.join(wrap(txt[:400], width=60)) for txt in self.docs]
+          VizDF['text'] = wrappedtext
+          hover_data = {'text': True}
+      else :
+          hover_data = None
+          
+      fig = px.scatter(VizDF,
+               x='x',
+               y='y',
+               hover_data = hover_data,
+               color=[str(top) for top in topics])
 
-        if self.docs != None :
-            wrappedtext = ['<br>'.join(wrap(txt[:400], width=60)) for txt in self.docs]
-            VizDF['text'] = wrappedtext
-            hover_data = {'text': True}
-        else :
-            hover_data = None
-            
-        fig = px.scatter(VizDF,
-                 x='x',
-                 y='y',
-                 hover_data = hover_data,
-                 color=[str(top) for top in topics])
-
-        return fig    
+      return fig    
 
 
     def save(self, 
@@ -235,7 +235,6 @@ class TopicModelTuner(object):
              save_docs=True,
              save_embeddings=True,
              save_viz_reduction=True) :
-
         '''
         Saves the TMT object. User can choose whether or not to save docs, embeddings and/or
         the viz reduction
@@ -259,12 +258,12 @@ class TopicModelTuner(object):
      
     @staticmethod    
     def load(path='./') :
-    '''
-    Restore a saved TMT object from disk
-    '''
+      '''
+      Restore a saved TMT object from disk
+      '''
       
-        with open(path, 'rb') as file :    
-            return joblib.load(file)
+      with open(path, 'rb') as file :    
+          return joblib.load(file)
 
     def runHDBSCAN(self, min_cluster_size, sample_size) :
       '''
@@ -287,38 +286,38 @@ class TopicModelTuner(object):
         return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
         
     def _runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
-    '''
-    Internal call to run a passel of HDBSCAN within a given range of parameters.
-    cluster_size_range is a list of ints and sample_size_pct_range is a list of percentages e.g.
-    [.1, .25, .50, .75, 1]. One of the percent values will be randomly chosen and 
-    multiplied by the randomly chosen cluster_size_range to produce a min_samples
-    value for HDBSCAN. The calulated min_samples value must be larger than 0 and not 
-    greater than the selected cluster_size_range value.
-    '''
-        results = []
-        for _ in tqdm(range(iters)) :
-            min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
-            min_sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
-            results.append((min_cluster_size, min_sample_size, self.runHDBSCAN(min_cluster_size, min_sample_size)))
-        RunResultsDF = pd.DataFrame()
-        RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
-        RunResultsDF['min_sample_size'] = [tupe[1] for tupe in results]
-        RunResultsDF['number_of_clusters'] = [len(pd.Series(tupe[2]).value_counts()) for tupe in results]
-        uncategorized = []
-        for aDict in [pd.Series(tupe[2]).value_counts().to_dict() for tupe in results] :
-            if -1 in aDict.keys() :
-                uncategorized.append(aDict[-1])
-            else:
-                uncategorized.append(0)
-        RunResultsDF['number_uncategorized'] = uncategorized
-    
-        # if self.ResultsDF == None :
-        #     self.ResultsDF = pd.DataFrame()
-    
-        self.ResultsDF = pd.concat([self.ResultsDF, RunResultsDF])
-        self.ResultsDF.reset_index(inplace=True, drop=True)
-    
-        return RunResultsDF
+      '''
+      Internal call to run a passel of HDBSCAN within a given range of parameters.
+      cluster_size_range is a list of ints and sample_size_pct_range is a list of percentages e.g.
+      [.1, .25, .50, .75, 1]. One of the percent values will be randomly chosen and 
+      multiplied by the randomly chosen cluster_size_range to produce a min_samples
+      value for HDBSCAN. The calulated min_samples value must be larger than 0 and not 
+      greater than the selected cluster_size_range value.
+      '''
+      results = []
+      for _ in tqdm(range(iters)) :
+          min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
+          min_sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
+          results.append((min_cluster_size, min_sample_size, self.runHDBSCAN(min_cluster_size, min_sample_size)))
+      RunResultsDF = pd.DataFrame()
+      RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
+      RunResultsDF['min_sample_size'] = [tupe[1] for tupe in results]
+      RunResultsDF['number_of_clusters'] = [len(pd.Series(tupe[2]).value_counts()) for tupe in results]
+      uncategorized = []
+      for aDict in [pd.Series(tupe[2]).value_counts().to_dict() for tupe in results] :
+          if -1 in aDict.keys() :
+              uncategorized.append(aDict[-1])
+          else:
+              uncategorized.append(0)
+      RunResultsDF['number_uncategorized'] = uncategorized
+  
+      # if self.ResultsDF == None :
+      #     self.ResultsDF = pd.DataFrame()
+  
+      self.ResultsDF = pd.concat([self.ResultsDF, RunResultsDF])
+      self.ResultsDF.reset_index(inplace=True, drop=True)
+  
+      return RunResultsDF
 
 
     def evalParams(self, cluster_size_range, sample_size_range, iters = 20) :
@@ -348,17 +347,17 @@ class TopicModelTuner(object):
         return fig, resultSummaryDF
     
     def summarizeResults(self, summaryDF : pd.DataFrame) :
-    '''
-    Pass this a DataFrame with run results - either the summary DF from a given
-    run or the historical table run and it will return a table where each record 
-    represents contains the smallest number of uncategorized documents for a given
-    number of clusters.
-    '''
-        resultSummaryDF = pd.DataFrame()
-        for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
+      '''
+      Pass this a DataFrame with run results - either the summary DF from a given
+      run or the historical table run and it will return a table where each record 
+      represents contains the smallest number of uncategorized documents for a given
+      number of clusters.
+      '''
+      resultSummaryDF = pd.DataFrame()
+      for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
-        resultSummaryDF.reset_index(inplace=True, drop=True)
-        return resultSummaryDF
+      resultSummaryDF.reset_index(inplace=True, drop=True)
+      return resultSummaryDF
 
 
 class UMAP_facade :
