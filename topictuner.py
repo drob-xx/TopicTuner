@@ -153,11 +153,10 @@ class TopicModelTuner(object):
       Reduce dimensionality of the embeddings
       '''
       try :
-        if self.embeddings == None :
+        if self.embeddings != None 
       except ValueError as e :
         print('Error - No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
 
-print("just can't")    
       self.reducer_model.fit(self.embeddings)
     
     def createVizReduction(self) :
