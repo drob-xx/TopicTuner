@@ -159,7 +159,7 @@ class TopicModelTuner(object):
       Create embeddings using the embedding model specified during initiliazation.
       '''
       if self.embeddings != None :
-      raise AttributeError('Embeddings already created, reset by setting embeddings=None')
+        raise AttributeError('Embeddings already created, reset by setting embeddings=None')
         
       if (self.docs == None) and (docs == None) :
         raise AttributeError('Docs not specified, set docs=)
@@ -193,13 +193,13 @@ class TopicModelTuner(object):
 
 
     def getVizCoords(self) :
-        '''
-        Returns the X,Y coordinates for use in plotting
-        '''
-        if self.viz_reducer == None :
-            raise AttributeError('Visualization reduction not performed, call createVizReduction first')
+      '''
+      Returns the X,Y coordinates for use in plotting
+      '''
+      if self.viz_reducer == None :
+          raise AttributeError('Visualization reduction not performed, call createVizReduction first')
 
-        return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
+      return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
     def visualizeEmbeddings(self, min_cluster_size, min_sample_size) :
       '''
@@ -235,26 +235,26 @@ class TopicModelTuner(object):
              save_docs=True,
              save_embeddings=True,
              save_viz_reduction=True) :
-        '''
-        Saves the TMT object. User can choose whether or not to save docs, embeddings and/or
-        the viz reduction
-        '''
-        
-        docs = self.docs
-        embeddings = self.embeddings
-        viz_reduction = self.viz_reduction
-        with open(path, 'wb') as file :
-            if not save_docs :
-                self.docs = None
-            if not save_embeddings :
-                self.embeddings = None
-            if not save_viz_reduction :
-                self.viz_reduction = None
-            joblib.dump(self, file)
-            
-        self.docs = docs
-        self.embeddings = embeddings
-        self.viz_reduction = viz_reduction
+      '''
+      Saves the TMT object. User can choose whether or not to save docs, embeddings and/or
+      the viz reduction
+      '''
+      
+      docs = self.docs
+      embeddings = self.embeddings
+      viz_reduction = self.viz_reduction
+      with open(path, 'wb') as file :
+          if not save_docs :
+              self.docs = None
+          if not save_embeddings :
+              self.embeddings = None
+          if not save_viz_reduction :
+              self.viz_reduction = None
+          joblib.dump(self, file)
+          
+      self.docs = docs
+      self.embeddings = embeddings
+      self.viz_reduction = viz_reduction
      
     @staticmethod    
     def load(path='./') :
@@ -263,7 +263,7 @@ class TopicModelTuner(object):
       '''
       
       with open(path, 'rb') as file :    
-          return joblib.load(file)
+        return joblib.load(file)
 
     def runHDBSCAN(self, min_cluster_size, sample_size) :
       '''
@@ -271,19 +271,19 @@ class TopicModelTuner(object):
       or equal to min_cluster_size.
       '''
 
-        if self.hdbscan_model == None :
-            hdbscan_model = HDBSCAN(metric='euclidean',
-                                        cluster_selection_method='eom',
-                                        prediction_data=True,
-                                        min_samples=min_sample_size,
-                                        min_cluster_size=min_cluster_size,
-                                        )
-        else :
-            hdbscan_model = copy(self.hdbscan_model)
-            hdbscan_model.min_samples = min_sample_size
-            hdbscan_model.min_cluster_size = min_cluster_size
-    
-        return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
+      if self.hdbscan_model == None :
+          hdbscan_model = HDBSCAN(metric='euclidean',
+                                      cluster_selection_method='eom',
+                                      prediction_data=True,
+                                      min_samples=min_sample_size,
+                                      min_cluster_size=min_cluster_size,
+                                      )
+      else :
+          hdbscan_model = copy(self.hdbscan_model)
+          hdbscan_model.min_samples = min_sample_size
+          hdbscan_model.min_cluster_size = min_cluster_size
+  
+      return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
         
     def _runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
       '''
@@ -305,15 +305,11 @@ class TopicModelTuner(object):
       RunResultsDF['number_of_clusters'] = [len(pd.Series(tupe[2]).value_counts()) for tupe in results]
       uncategorized = []
       for aDict in [pd.Series(tupe[2]).value_counts().to_dict() for tupe in results] :
-          if -1 in aDict.keys() :
-              uncategorized.append(aDict[-1])
-          else:
-              uncategorized.append(0)
+        if -1 in aDict.keys() :
+            uncategorized.append(aDict[-1])
+        else:
+            uncategorized.append(0)
       RunResultsDF['number_uncategorized'] = uncategorized
-  
-      # if self.ResultsDF == None :
-      #     self.ResultsDF = pd.DataFrame()
-  
       self.ResultsDF = pd.concat([self.ResultsDF, RunResultsDF])
       self.ResultsDF.reset_index(inplace=True, drop=True)
   
@@ -332,20 +328,20 @@ class TopicModelTuner(object):
       attribute.
       '''
     
-        if self.reducer_model.embedding_.sum() == 0  :
-            raise AttributeError('Reducer not run yet, call createReduction() first')
+      if self.reducer_model.embedding_.sum() == 0  :
+          raise AttributeError('Reducer not run yet, call createReduction() first')
 
-        ResultsDF = self._runTests(self.reducer_model.embedding_ , cluster_size_range, sample_size_range, iters=iters)
-        fig = px.parallel_coordinates(ResultsDF,
-                                      color="number_uncategorized", 
-                                      labels={"min_cluster_size": "min_cluster_size",
-                                              "min_sample_size": "min_sample_size", 
-                                              "number_of_clusters": "number_of_clusters",
-                                              "number_uncategorized": "number_uncategorized", },)
+      ResultsDF = self._runTests(self.reducer_model.embedding_ , cluster_size_range, sample_size_range, iters=iters)
+      fig = px.parallel_coordinates(ResultsDF,
+                                    color="number_uncategorized", 
+                                    labels={"min_cluster_size": "min_cluster_size",
+                                            "min_sample_size": "min_sample_size", 
+                                            "number_of_clusters": "number_of_clusters",
+                                            "number_uncategorized": "number_uncategorized", },)
 
-        resultSummaryDF = self.summarizeResults(ResultsDF)
-        return fig, resultSummaryDF
-    
+      resultSummaryDF = self.summarizeResults(ResultsDF)
+      return fig, resultSummaryDF
+  
     def summarizeResults(self, summaryDF : pd.DataFrame) :
       '''
       Pass this a DataFrame with run results - either the summary DF from a given
