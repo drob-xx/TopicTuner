@@ -163,9 +163,11 @@ class TopicModelTuner(object):
       '''
       Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
       '''
-
-      if self.embeddings == None :
-          raise AttributeError('No embeddings set: either set via embeddings= or call createEmbeddings()')
+      try :
+        if self.embeddings == None :
+          raise AttributeError('No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
+      except ValueError as e :
+          pass # embeddings already setNo embeddings set: either set via embeddings= or call createEmbeddings()')
 
       self.viz_reducer = copy(self.reducer_model)
       self.viz_reducer.n_components = 2
