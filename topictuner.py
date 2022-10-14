@@ -181,7 +181,7 @@ class TopicModelTuner(object):
 
       return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
-    def visualizeEmbeddings(self, min_cluster_size, min_sample_size) :
+    def visualizeEmbeddings(self, min_cluster_size, sample_size) :
       '''
       Visualize the embeddings, clustered according to the provided parameters.
       If docs has been set then the first 400 chars of each document will be 
@@ -189,7 +189,7 @@ class TopicModelTuner(object):
   
       Returns a plotly fig object
       '''
-      topics = self.runHDBSCAN(min_cluster_size, min_sample_size)
+      topics = self.runHDBSCAN(min_cluster_size, sample_size)
 
       VizDF = pd.DataFrame()
       VizDF['x'], VizDF['y'] = self.getVizCoords()
@@ -255,12 +255,12 @@ class TopicModelTuner(object):
           hdbscan_model = HDBSCAN(metric='euclidean',
                                       cluster_selection_method='eom',
                                       prediction_data=True,
-                                      min_samples=min_sample_size,
+                                      min_samples=sample_size,
                                       min_cluster_size=min_cluster_size,
                                       )
       else :
           hdbscan_model = copy(self.hdbscan_model)
-          hdbscan_model.min_samples = min_sample_size
+          hdbscan_model.min_samples = sample_size
           hdbscan_model.min_cluster_size = min_cluster_size
   
       return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
@@ -277,11 +277,11 @@ class TopicModelTuner(object):
       results = []
       for _ in tqdm(range(iters)) :
           min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
-          min_sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
-          results.append((min_cluster_size, min_sample_size, self.runHDBSCAN(min_cluster_size, min_sample_size)))
+          sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
+          results.append((min_cluster_size, sample_size, self.runHDBSCAN(min_cluster_size, sample_size)))
       RunResultsDF = pd.DataFrame()
       RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
-      RunResultsDF['min_sample_size'] = [tupe[1] for tupe in results]
+      RunResultsDF['sample_size'] = [tupe[1] for tupe in results]
       RunResultsDF['number_of_clusters'] = [len(pd.Series(tupe[2]).value_counts()) for tupe in results]
       uncategorized = []
       for aDict in [pd.Series(tupe[2]).value_counts().to_dict() for tupe in results] :
@@ -315,7 +315,7 @@ class TopicModelTuner(object):
       fig = px.parallel_coordinates(ResultsDF,
                                     color="number_uncategorized", 
                                     labels={"min_cluster_size": "min_cluster_size",
-                                            "min_sample_size": "min_sample_size", 
+                                            "sample_size": "ample_size", 
                                             "number_of_clusters": "number_of_clusters",
                                             "number_uncategorized": "number_uncategorized", },)
 
