@@ -13,12 +13,9 @@ from copy import copy
 from random import randrange
 from tqdm.notebook import tqdm
 from textwrap import wrap
-
-
 import numpy as np
 import joblib
 import pandas as pd
-
 import plotly.express as px
 
 
@@ -51,17 +48,20 @@ class TopicModelTuner(object):
       '''
       The default initialization does not assume a BERTopic model explicitly, but the class is 
       currently written implicitly assuming the BERTopic, default, topic model pattern - 
-      1) the 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
+      1) 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
       2) UMAP as the reduction method to 5 features using the same parameters as BERTopic defaults to.
       3) HDBSCAN as the clustering mechansim
 
       Options include:
 
-      - Using your own embeddings by setting embeddings=
-      - Using different UMAP settings or a different dimensional reduction method by setting reducer_model=
-      - Using different HDBSCAN parameters by setting hdbscan_model=
+      - Using your own embeddings by setting TMT.embeddings after creating an instance
+      - Using different UMAP settings or a different dimensional reduction method by setting TMT.reducer_model
+      - Using different HDBSCAN parameters by setting TMT.hdbscan_model
 
-      Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - this is optional.
+      These can be set in the constructor or after instantiation by setting the instance variables.
+
+      Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - or optionally
+      omitting them.
       '''
       
       self.verbose=verbose
@@ -92,8 +92,7 @@ class TopicModelTuner(object):
     @staticmethod
     def wrapBERTopicModel(BERTopicModel : BERTopic, verbose=2) :
       '''
-      This is a helper function which returns a TMT instance using the values from a BERTopic Model.
-      placeholder(FIXED)
+      This is a helper function which returns a TMT instance using the values from a BERTopic instance.
       '''
   
       return TopicModelTuner(embedding_model=BERTopicModel.embedding_model,
@@ -154,7 +153,7 @@ class TopicModelTuner(object):
       '''
       try :
         if self.embeddings == None :
-          print('Error - No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
+          raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings directly')
       except ValueError as e :
           pass # embeddings already set
       self.reducer_model.fit(self.embeddings)
@@ -167,16 +166,15 @@ class TopicModelTuner(object):
         if self.embeddings == None :
           raise AttributeError('No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
       except ValueError as e :
-          pass # embeddings already setNo embeddings set: either set via embeddings= or call createEmbeddings()')
+          pass # embeddings already set
 
       self.viz_reducer = copy(self.reducer_model)
       self.viz_reducer.n_components = 2
       self.viz_reducer.fit(self.embeddings)
 
-
     def getVizCoords(self) :
       '''
-      Returns the X,Y coordinates for use in plotting
+      Returns the X,Y coordinates for use in plotting a visualization of the embeddings.
       '''
       if self.viz_reducer == None :
           raise AttributeError('Visualization reduction not performed, call createVizReduction first')
@@ -213,7 +211,7 @@ class TopicModelTuner(object):
 
 
     def save(self, 
-             path='./',
+             fname,
              save_docs=True,
              save_embeddings=True,
              save_viz_reduction=True) :
@@ -225,7 +223,7 @@ class TopicModelTuner(object):
       docs = self.docs
       embeddings = self.embeddings
       viz_reduction = self.viz_reduction
-      with open(path, 'wb') as file :
+      with open(fname, 'wb') as file :
           if not save_docs :
               self.docs = None
           if not save_embeddings :
@@ -239,12 +237,12 @@ class TopicModelTuner(object):
       self.viz_reduction = viz_reduction
      
     @staticmethod    
-    def load(path='./') :
+    def load(fname) :
       '''
       Restore a saved TMT object from disk
       '''
       
-      with open(path, 'rb') as file :    
+      with open(fname, 'rb') as file :    
         return joblib.load(file)
 
     def runHDBSCAN(self, min_cluster_size, sample_size) :
@@ -266,8 +264,10 @@ class TopicModelTuner(object):
           hdbscan_model.min_cluster_size = min_cluster_size
   
       return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
+
+
         
-    def _runTests(self, embedding, cluster_size_range, sample_size_pct_range, iters=20 ):
+    def _runTests(self, searchParams ):
       '''
       Internal call to run a passel of HDBSCAN within a given range of parameters.
       cluster_size_range is a list of ints and sample_size_pct_range is a list of percentages e.g.
@@ -277,9 +277,7 @@ class TopicModelTuner(object):
       greater than the selected cluster_size_range value.
       '''
       results = []
-      for _ in tqdm(range(iters)) :
-          min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
-          sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
+      for min_cluster_size, sample_size in tqdm(searchParams.items()) :
           results.append((min_cluster_size, sample_size, self.runHDBSCAN(min_cluster_size, sample_size)))
       RunResultsDF = pd.DataFrame()
       RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
@@ -296,9 +294,30 @@ class TopicModelTuner(object):
       self.ResultsDF.reset_index(inplace=True, drop=True)
   
       return RunResultsDF
+      
+    def _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters=20) :
+      searchParams = {}
+      for _ in range(iters) :
+        min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
+        sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
+        if sample_size < 1 :
+          sample_size=1
+        searchParams[min_cluster_size] = sample_size
+      return searchParams
 
+    def _genGridSearchParams(self, cluster_sizes, sample_sizes) :
+      searchParams = {}
+      
+  
+    def randomSearch(self, cluster_size_range, sample_size_pct_range, iters=20) :
+      searchParams = _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters)
+      return _runTests(searchParams)
 
-    def evalParams(self, cluster_size_range, sample_size_range, iters = 20) :
+    def gridSearch(self, cluster_sizes, sample_sizes) :
+      searchParams = _genGridSearchParams(cluster_sizes, sample_sizes) :
+      return _runTests(searchParams)
+  
+    def visualizeSearch(self, resultsDF) :
       '''
       Runs iters number of randomly generated cluster size and sample range pairs
       against the embeddings. Note that sample sizes have to be a percentage value of 
@@ -310,19 +329,16 @@ class TopicModelTuner(object):
       attribute.
       '''
     
-      if self.reducer_model.embedding_.sum() == 0  :
-          raise AttributeError('Reducer not run yet, call createReduction() first')
+      # if self.reducer_model.embedding_.sum() == 0  :
+      #     raise AttributeError('Reducer not run yet, call createReduction() first')
 
-      ResultsDF = self._runTests(self.reducer_model.embedding_ , cluster_size_range, sample_size_range, iters=iters)
-      fig = px.parallel_coordinates(ResultsDF,
+      fig = px.parallel_coordinates(resultsDF,
                                     color="number_uncategorized", 
                                     labels={"min_cluster_size": "min_cluster_size",
                                             "sample_size": "ample_size", 
                                             "number_of_clusters": "number_of_clusters",
                                             "number_uncategorized": "number_uncategorized", },)
-
-      resultSummaryDF = self.summarizeResults(ResultsDF)
-      return fig, resultSummaryDF
+      return fig
   
     def summarizeResults(self, summaryDF : pd.DataFrame) :
       '''
