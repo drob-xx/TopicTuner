@@ -11,6 +11,7 @@ from sentence_transformers import SentenceTransformer
 
 from copy import copy
 from random import randrange
+from collections import namedtuple
 from tqdm.notebook import tqdm
 from textwrap import wrap
 import numpy as np
@@ -73,6 +74,7 @@ class TopicModelTuner(object):
       self.hdbscan_model = hdbscan_model
       self.ResultsDF = None
       self.docs = docs
+      self.paramPair = namedtuple('paramPair', 'cs ss')
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -267,7 +269,7 @@ class TopicModelTuner(object):
 
 
         
-    def _runTests(self, searchParams ):
+    def _runTests(self, searchParams):
       '''
       Internal call to run a passel of HDBSCAN within a given range of parameters.
       cluster_size_range is a list of ints and sample_size_pct_range is a list of percentages e.g.
@@ -276,9 +278,10 @@ class TopicModelTuner(object):
       value for HDBSCAN. The calulated min_samples value must be larger than 0 and not 
       greater than the selected cluster_size_range value.
       '''
-      results = []
-      for min_cluster_size, sample_size in tqdm(searchParams.items()) :
-          results.append((min_cluster_size, sample_size, self.runHDBSCAN(min_cluster_size, sample_size)))
+      # results = []
+      # for params in tqdm(searchParams) :
+      results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
+          # results.append((params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)))
       RunResultsDF = pd.DataFrame()
       RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
       RunResultsDF['sample_size'] = [tupe[1] for tupe in results]
@@ -294,20 +297,27 @@ class TopicModelTuner(object):
       self.ResultsDF.reset_index(inplace=True, drop=True)
   
       return RunResultsDF
-      
-    def _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters=20) :
-      searchParams = {}
-      for _ in range(iters) :
-        min_cluster_size = cluster_size_range[randrange(len(cluster_size_range))]
-        sample_size = int(min_cluster_size * (sample_size_pct_range[randrange(len(sample_size_pct_range))]))
+
+    def _returnParamsFromCSandPercent(cluster_size, sample_size_pct) :
+        sample_size = int(cluster_size * sample_size_pct)
         if sample_size < 1 :
-          sample_size=1
-        searchParams[min_cluster_size] = sample_size
+          sample_size = 1
+        return self.paramPair(cluster_size, sample_size)
+      
+  
+    def _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters=20) :
+      searchParams = []
+      for _ in range(iters) :
+        searchParams.append(_returnParamsFromCSandPercent(cluster_size_range[randrange(len(cluster_size_range))],
+                                                       sample_size_pct_range[randrange(len(sample_size_pct_range))])
       return searchParams
 
-    def _genGridSearchParams(self, cluster_sizes, sample_sizes) :
-      searchParams = {}
-      
+    def _genGridSearchParams(self, cluster_sizes, sample_size_pct_range) :
+      searchParams = []
+      for cluster_size in cluster_sizes :
+        for sample_size_pct in sample_size_pct_range :
+          searchParams.append(_returnParamsFromCSandPercent(cluster_size, sample_size_pct)
+      return searchParams
   
     def randomSearch(self, cluster_size_range, sample_size_pct_range, iters=20) :
       searchParams = _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters)
@@ -316,6 +326,11 @@ class TopicModelTuner(object):
     def gridSearch(self, cluster_sizes, sample_sizes) :
       searchParams = _genGridSearchParams(cluster_sizes, sample_sizes) :
       return _runTests(searchParams)
+
+    def simpleSearch(self, cluster_sizes, sample_sizes) :
+      if len(cluster_size) != len(sample_size) :
+        raise ValueError('Length of cluster sizes and samples sizes lists must match')
+      return([self.paramPair(cs,ss) for cs, ss in zip(cluster_size, sample_sizes)]
   
     def visualizeSearch(self, resultsDF) :
       '''
