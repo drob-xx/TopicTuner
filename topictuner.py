@@ -327,7 +327,7 @@ class TopicModelTuner(object):
       return _runTests(searchParams)
 
     def gridSearch(self, cluster_sizes, sample_sizes) :
-      searchParams = _genGridSearchParams(cluster_sizes, sample_sizes) :
+      searchParams = _genGridSearchParams(cluster_sizes, sample_sizes)
       return _runTests(searchParams)
 
     def simpleSearch(self, cluster_sizes, sample_sizes) :
