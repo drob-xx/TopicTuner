@@ -333,7 +333,7 @@ class TopicModelTuner(object):
     def simpleSearch(self, cluster_sizes, sample_sizes) :
       if len(cluster_size) != len(sample_size) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
-      return([self.paramPair(cs,ss) for cs, ss in zip(cluster_size, sample_sizes)]
+      return [self.paramPair(cs,ss) for cs, ss in zip(cluster_size, sample_sizes)]
   
     def visualizeSearch(self, resultsDF) :
       '''
