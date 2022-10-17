@@ -309,7 +309,7 @@ class TopicModelTuner(object):
       searchParams = []
       for _ in range(iters) :
         searchParams.append(
-          _returnParamsFromCSandPercent(cluster_size_range[randrange(len(cluster_size_range))],
+          self._returnParamsFromCSandPercent(cluster_size_range[randrange(len(cluster_size_range))],
                                         sample_size_pct_range[randrange(len(sample_size_pct_range))]
                                        )
         )
@@ -319,21 +319,21 @@ class TopicModelTuner(object):
       searchParams = []
       for cluster_size in cluster_sizes :
         for sample_size_pct in sample_size_pct_range :
-          searchParams.append(_returnParamsFromCSandPercent(cluster_size, sample_size_pct))
+          searchParams.append(self._returnParamsFromCSandPercent(cluster_size, sample_size_pct))
       return searchParams
   
     def randomSearch(self, cluster_size_range, sample_size_pct_range, iters=20) :
-      searchParams = _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters)
-      return _runTests(searchParams)
+      searchParams = self._genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters)
+      return self._runTests(searchParams)
 
     def gridSearch(self, cluster_sizes, sample_sizes) :
-      searchParams = _genGridSearchParams(cluster_sizes, sample_sizes)
-      return _runTests(searchParams)
+      searchParams = self._genGridSearchParams(cluster_sizes, sample_sizes)
+      return self._runTests(searchParams)
 
     def simpleSearch(self, cluster_sizes, sample_sizes) :
       if len(cluster_size) != len(sample_size) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
-      return [self.paramPair(cs,ss) for cs, ss in zip(cluster_size, sample_sizes)]
+      return _runTests([self.paramPair(cs,ss) for cs, ss in zip(cluster_size, sample_sizes)])
   
     def visualizeSearch(self, resultsDF) :
       '''
