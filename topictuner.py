@@ -183,6 +183,7 @@ class TopicModelTuner(object):
 
       return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
+      
     def visualizeEmbeddings(self, min_cluster_size, sample_size) :
       '''
       Visualize the embeddings, clustered according to the provided parameters.
@@ -212,40 +213,6 @@ class TopicModelTuner(object):
       return fig    
 
 
-    def save(self, 
-             fname,
-             save_docs=True,
-             save_embeddings=True,
-             save_viz_reduction=True) :
-      '''
-      Saves the TMT object. User can choose whether or not to save docs, embeddings and/or
-      the viz reduction
-      '''
-      
-      docs = self.docs
-      embeddings = self.embeddings
-      viz_reduction = self.viz_reduction
-      with open(fname, 'wb') as file :
-          if not save_docs :
-              self.docs = None
-          if not save_embeddings :
-              self.embeddings = None
-          if not save_viz_reduction :
-              self.viz_reduction = None
-          joblib.dump(self, file)
-          
-      self.docs = docs
-      self.embeddings = embeddings
-      self.viz_reduction = viz_reduction
-     
-    @staticmethod    
-    def load(fname) :
-      '''
-      Restore a saved TMT object from disk
-      '''
-      
-      with open(fname, 'rb') as file :    
-        return joblib.load(file)
 
     def runHDBSCAN(self, min_cluster_size, sample_size) :
       '''
@@ -370,6 +337,42 @@ class TopicModelTuner(object):
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
       resultSummaryDF.reset_index(inplace=True, drop=True)
       return resultSummaryDF
+
+    def save(self, 
+             fname,
+             save_docs=True,
+             save_embeddings=True,
+             save_viz_reduction=True) :
+      '''
+      Saves the TMT object. User can choose whether or not to save docs, embeddings and/or
+      the viz reduction
+      '''
+      
+      docs = self.docs
+      embeddings = self.embeddings
+      viz_reduction = self.viz_reduction
+      with open(fname, 'wb') as file :
+          if not save_docs :
+              self.docs = None
+          if not save_embeddings :
+              self.embeddings = None
+          if not save_viz_reduction :
+              self.viz_reduction = None
+          joblib.dump(self, file)
+          
+      self.docs = docs
+      self.embeddings = embeddings
+      self.viz_reduction = viz_reduction
+     
+    @staticmethod    
+    def load(fname) :
+      '''
+      Restore a saved TMT object from disk
+      '''
+      
+      with open(fname, 'rb') as file :    
+        return joblib.load(file)
+
 
 
 class UMAP_facade :
