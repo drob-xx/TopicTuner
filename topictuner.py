@@ -298,14 +298,14 @@ class TopicModelTuner(object):
   
       return RunResultsDF
 
-    def _returnParamsFromCSandPercent(cluster_size, sample_size_pct) :
+    def _returnParamsFromCSandPercent(self, cluster_size, sample_size_pct) :
         sample_size = int(cluster_size * sample_size_pct)
         if sample_size < 1 :
           sample_size = 1
         return self.paramPair(cluster_size, sample_size)
       
   
-    def _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters=20) :
+    def _genRandomSearchParams(self, cluster_size_range, sample_size_pct_range, iters=20) :
       searchParams = []
       for _ in range(iters) :
         searchParams.append(
