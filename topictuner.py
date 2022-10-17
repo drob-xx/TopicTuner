@@ -331,7 +331,7 @@ class TopicModelTuner(object):
       return self._runTests(searchParams)
 
     def simpleSearch(self, cluster_sizes, sample_sizes) :
-      if len(cluster_size) != len(sample_size) :
+      if len(cluster_sizes) != len(sample_sizes) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
       return _runTests([self.paramPair(cs,ss) for cs, ss in zip(cluster_size, sample_sizes)])
   
