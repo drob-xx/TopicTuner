@@ -308,8 +308,11 @@ class TopicModelTuner(object):
     def _genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters=20) :
       searchParams = []
       for _ in range(iters) :
-        searchParams.append(_returnParamsFromCSandPercent(cluster_size_range[randrange(len(cluster_size_range))],
-                                                       sample_size_pct_range[randrange(len(sample_size_pct_range))])
+        searchParams.append(
+          _returnParamsFromCSandPercent(cluster_size_range[randrange(len(cluster_size_range))],
+                                        sample_size_pct_range[randrange(len(sample_size_pct_range))]
+                                       )
+        )
       return searchParams
 
     def _genGridSearchParams(self, cluster_sizes, sample_size_pct_range) :
