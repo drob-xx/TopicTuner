@@ -319,7 +319,7 @@ class TopicModelTuner(object):
       searchParams = []
       for cluster_size in cluster_sizes :
         for sample_size_pct in sample_size_pct_range :
-          searchParams.append(_returnParamsFromCSandPercent(cluster_size, sample_size_pct)
+          searchParams.append(_returnParamsFromCSandPercent(cluster_size, sample_size_pct))
       return searchParams
   
     def randomSearch(self, cluster_size_range, sample_size_pct_range, iters=20) :
