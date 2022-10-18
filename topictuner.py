@@ -42,7 +42,7 @@ class TopicModelTuner(object):
     def __init__(self, 
                  embeddings: np.ndarray=None, #: pre-generated embeddings
                  embedding_model=None, #: set for alternative transformer embedding model
-                 docs: list[str]=None, #: can be set here or when embeddings are created manually
+                 docs: List[str]=None, #: can be set here or when embeddings are created manually
                  reducer_model=None, #: a UMAP instance
                  hdbscan_model=None, #: an HDBSCAN instance
                  reducer_components: int=5, #: for UMAP
