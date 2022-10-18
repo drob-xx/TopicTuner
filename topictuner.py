@@ -1,9 +1,3 @@
-'''
-Created on Jul 19, 2022
-
-@author: Dan Robinson
-'''
-
 from bertopic import BERTopic
 from umap import UMAP
 from hdbscan import HDBSCAN
@@ -23,16 +17,17 @@ import plotly.express as px
 
 class TopicModelTuner(object):
     '''
-    TopicModelTuner (TMT) provides a set of tools to  
-    optimize the min_clust_size and min_sample parameters of HDBSCAN. It is written
-    to compliment BERTopic default models and assumes that HDBSCAN is being used
-    to cluster a UMAP reduction of embeddings. 
+    TopicModelTuner (TMT) is a tool to optimize the min_clust_size and min_sample parameters 
+    of HDBSCAN. It is a compliment to the BERTopic default configuration and assumes that 
+    HDBSCAN is being used to cluster UMAP reductions of embeddings. 
     
-    A TMT instance can be initialized with the convenience TMT.wrapBERTopicModel() function which
-    returns a TMT instance initialized with the embedding model, HDBSCAN and UMAP
-    parameters in a given BERTopic model. Otherwise, a new TMT instance can be
-    created from scratch. In either case, once the optimized parameters have been identified
-    TMT.getBERTopicModel() will return a BERTopic instance with the desired parameters.
+    The convenience function TMT.wrapBERTopicModel() returns a TMT instance initialized 
+    with the provided BERTopic model's embedding model, HDBSCAN and UMAP instances and
+    parameters. 
+    
+    Alternatively a new TMT instance can be created from scratch and, in either case, 
+    once the optimized parameters have been identified, calling TMT.getBERTopicModel()
+    returns a configured BERTopic instance with the desired parameters.
     
     TMT does not explicitly provide functionality for testing alternative UMAP parameters or
     HDBSCAN parameters other than min_cluster_size or min_samples. However both the HDBSCAN
@@ -40,43 +35,47 @@ class TopicModelTuner(object):
     '''
     
     def __init__(self, 
-                 embeddings: np.ndarray=None, #: pre-generated embeddings
-                 embedding_model=None, #: set for alternative transformer embedding model
-                 docs: List[str]=None, #: can be set here or when embeddings are created manually
-                 reducer_model=None, #: a UMAP instance
-                 hdbscan_model=None, #: an HDBSCAN instance
-                 reducer_components: int=5, #: for UMAP
-                 verbose: int=2): #: for UMAP
+                 embeddings: np.ndarray = None, #: pre-generated embeddings
+                 embedding_model = None, #: set for alternative transformer embedding model
+                 docs: List[str] = None, #: can be set here or when embeddings are created manually
+                 reducer_model = None, #: a UMAP instance
+                 hdbscan_model = None, #: an HDBSCAN instance
+                 reducer_components: int = 5, #: for UMAP
+                 verbose: int = 2): #: for UMAP
       '''
-      Default initialization which assumes the BERTopic defaults for the embedding model 
-      ('all-MiniLM-L6-v2' sentence transformer) as well as HDBSCAN and UMAP parameters. 
-      
-      1) 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
-      2) UMAP as the reduction method set to 5 features using the same parameters as BERTopic defaults to.
-      3) HDBSCAN as the clustering mechansim
+      Unless explicitly set, TMT Uses the same default parame defaults for the embedding model 
+      as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. 
 
+      - 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
+      - UMAP - metric='cosine', n_neighbors=5, min_dist=0.0
+      - HDBSCAN - metric='euclidean', cluster_selection_method='eom', prediction_data=Truej. 
+                  min_samples=sample_size and cluster_size are the parameters being optimized
+                  so those values are left to the user.
+      
       Options include:
 
       - Using your own embeddings by setting TMT.embeddings after creating an instance
       - Using different UMAP settings or a different dimensional reduction method by setting TMT.reducer_model
       - Using different HDBSCAN parameters by setting TMT.hdbscan_model
 
-      These can be set in the constructor or after instantiation by setting the instance variables.
+      These can be set in the constructor or after instantiation by setting the instance variables 
+      before generating the embeddings or reductions.
 
       Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - or optionally
       omitting them.
       '''
       
-      self.verbose=verbose #: Passed through to UMAP
-      self.embeddings = embeddings #: Can be set with pre-generated embedding
+      self.verbose=verbose 
+      self.embeddings = embeddings 
       self.reducer_components=reducer_components 
-      self.viz_reducer = None
-      self.reducer_model = reducer_model
+      self.viz_reducer = None # A reducer (defaults to UMAP to create a 2D reduction for a
+                              # scatter plot visualization of the embeddings
+      self.reducer_model = reducer_model # Used to reduce the embeddings (if necessary)
       self.verbose = verbose
       self.hdbscan_model = hdbscan_model
-      self.ResultsDF = None
+      self.ResultsDF = None # A running collection of all the parameters and results if a DataFrame
       self.docs = docs
-      self._paramPair = namedtuple('paramPair', 'cs ss')
+      self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -90,11 +89,9 @@ class TopicModelTuner(object):
                              n_neighbors=5, 
                              min_dist=0.0, 
                              verbose=self.verbose)
-          # this is a kludge.  See below for test to see if UMAP model has been fitted.
-          self.reducer_model.embedding_ = np.array([0,0])
 
     @staticmethod
-    def wrapBERTopicModel(BERTopicModel : BERTopic, verbose=2) :
+    def wrapBERTopicModel(BERTopicModel : BERTopic, verbose int = 2 ) :
       '''
       This is a helper function which returns a TMT instance using the values from a BERTopic instance.
       '''
@@ -104,25 +101,20 @@ class TopicModelTuner(object):
                                hdbscan_model=BERTopicModel.hdbscan_model,
                                verbose=verbose)
 
-    def getBERTopicModel(self, min_cluster_size, min_samples):
+    def getBERTopicModel(self, min_cluster_size : int, min_samples : int):
       '''
-      Returns a BERTopic model with the specified HDBSCAN parameters, regardles
-      of whether or not the TMT instance was created using the default __init__() or 
-      the helper wrapBERTopicModel() funciton.
+      Returns a BERTopic model with the specified HDBSCAN parameters. The user is left
+      to specify their chosen best settings after running a series of parameters searches.
       
-      The user is left to specify their chosen best settings after running a series of 
-      candidate parameters.
-      
-      The reason for this function is to return a BERTopic instance with create a 
-      UMAP_facade object as an argument to the BERTopic initialization, since any 
-      given HDBSCAN parameter set will be specific to a particular run of UMAP. 
-      Just using a tuned HDBSCAN
-      instance (or simply using the parameters derived from a tuning session) will 
-      not provide the best results in a new BERTopic instance. This is because BERTopic
-      will re-run UMAP each time fit() is called. Different runs of UMAP will have slightly 
-      different characteristics and will therefore perform differently with different 
-      HDBSCAN settings. HDBSCAN on the other hand will always return the same values assuming
-      that all the paremeters, and the data being clustered, are the same.
+      This function is necessary to return a BERTopic instance with a static UMAP reduction. 
+      Since any given HDBSCAN parameters will return somewhat different results when clustering
+      a given UMAP reduction, simply using the parameters derived from a tuning session derived
+      from the UMAP reduction in the TMT instance will not produce the same results for a new 
+      BERTopic instance. The reason for this is that BERTopic re-runs UMAP each time fit() is 
+      called. Since different runs of UMAP will have  different characteristics, to recreate
+      the desired results in the new BERTopic model it is necessary to use the same UMAP embeddings 
+      as used for tuning. The BERTopic instance returned by this function uses UMAP_facade (see below)
+      so that instead of re-runing UMAP it returns the pre-processed reduction instead.
       '''
       hdbscan_model = HDBSCAN(metric='euclidean',
                                       cluster_selection_method='eom',
@@ -135,12 +127,12 @@ class TopicModelTuner(object):
                       hdbscan_model=hdbscan_model)
 
     
-    def createEmbeddings(self, docs=None) :
+    def createEmbeddings(self, docs : List[str] = None) :
       '''
-      Create embeddings using the embedding model specified during initiliazation.
+      Create embeddings 
       '''
       if self.embeddings != None :
-        raise AttributeError('Embeddings already created, reset by setting embeddings=None')
+        raise AttributeError('Embeddings already created, reset by setting TMT.embeddings=None')
         
       if (self.docs == None) and (docs == None) :
         raise AttributeError('Docs not specified, set docs=')
@@ -186,11 +178,11 @@ class TopicModelTuner(object):
       return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
       
-    def visualizeEmbeddings(self, min_cluster_size, sample_size) :
+    def visualizeEmbeddings(self, min_cluster_size: int, sample_size: int) :
       '''
-      Visualize the embeddings, clustered according to the provided parameters.
-      If docs has been set then the first 400 chars of each document will be 
-      shown as a hover over each data point.
+      Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
+      If TMT.docs has been set then the first 400 chars of each document will be shown as a 
+      hover over each data point.
   
       Returns a plotly fig object
       '''
@@ -214,9 +206,7 @@ class TopicModelTuner(object):
 
       return fig    
 
-
-
-    def runHDBSCAN(self, min_cluster_size, sample_size) :
+    def runHDBSCAN(self, min_cluster_size: int, sample_size) :
       '''
       Cluster reduced embeddings. sample_size must be more than 0 and less than
       or equal to min_cluster_size.
@@ -240,17 +230,9 @@ class TopicModelTuner(object):
         
     def _runTests(self, searchParams):
       '''
-      Internal call to run a passel of HDBSCAN within a given range of parameters.
-      cluster_size_range is a list of ints and sample_size_pct_range is a list of percentages e.g.
-      [.1, .25, .50, .75, 1]. One of the percent values will be randomly chosen and 
-      multiplied by the randomly chosen cluster_size_range to produce a min_samples
-      value for HDBSCAN. The calulated min_samples value must be larger than 0 and not 
-      greater than the selected cluster_size_range value.
+      Runs a passel of HDBSCAN clusterings for searchParams
       '''
-      # results = []
-      # for params in tqdm(searchParams) :
       results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
-          # results.append((params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)))
       RunResultsDF = pd.DataFrame()
       RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
       RunResultsDF['sample_size'] = [tupe[1] for tupe in results]
@@ -291,21 +273,49 @@ class TopicModelTuner(object):
           searchParams.append(self._returnParamsFromCSandPercent(cluster_size, sample_size_pct))
       return searchParams
   
-    def randomSearch(self, cluster_size_range, sample_size_pct_range, iters=20) :
+    def randomSearch(self, cluster_size_range: List[int], sample_size_pct_range: List[int], iters=20) :
+      '''
+      Run a passel of HDBSCAN within a given range of parameters.
+      cluster_size_range is a list of ints and sample_size_pct_range is a list of percentage
+      values in decimal form e.g. [.1, .25, .50, .75, 1]. 
+      
+      This function will randomly select a min_cluster_size  and a sample_size percent
+      value from the supplied values. The sample_size percent will be used to calculate
+      the sample_size parameter to be used. That value will be rounded up to 1 if less than 1
+      and cannot be larger than the selected cluster_size.
+
+      All of the search results will be added to TMT.ResultsDF and a separate DataFrame containing
+      just the results from this search will be returned to the caller.
+      '''
       searchParams = self._genRandomSearchParams(cluster_size_range, sample_size_pct_range, iters)
       return self._runTests(searchParams)
 
-    def gridSearch(self, cluster_sizes, sample_sizes) :
+    def gridSearch(self, cluster_sizes: List[int], sample_sizes: List[float]) :
+      '''
+      Note that this is not a really a grid search. Rather this function will use each value
+      in cluster_sizes to initiate a clustering on each percent value in sample_sizes. For 
+      example if the values are [*range(10,101)] and [*range(10, 101)]/10, a clustering for 
+      each percentage value in sample_sizes for each value in cluster_sizes would be run
+      for a total of 100 clusterings. To perform a more complete grid search see TMT.simpleSearch.
+      '''
       searchParams = self._genGridSearchParams(cluster_sizes, sample_sizes)
       return self._runTests(searchParams)
 
-    def simpleSearch(self, cluster_sizes, sample_sizes) :
+    def simpleSearch(self, cluster_sizes: List[int], sample_sizes: List[int]) :
+      '''
+      A clustering for each value in cluster_sizes will be run using the corresponding sample_sizes 
+      value. The len of each list must be the same. Each cluster_size must be > 0 and sample_size must 
+      be >0 and <= cluster_size.
+      '''
       if len(cluster_sizes) != len(sample_sizes) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
       return self._runTests([self._paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
   
     def visualizeSearch(self, resultsDF) :
       '''
+
+      ### TO HERE
+      
       Runs iters number of randomly generated cluster size and sample range pairs
       against the embeddings. Note that sample sizes have to be a percentage value of 
       a given cluster_size and cannot be 0. 
