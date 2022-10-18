@@ -1,7 +1,7 @@
 '''
 Created on Jul 19, 2022
 
-@author: Dan
+@author: Dan Robinson
 '''
 
 from bertopic import BERTopic
@@ -22,35 +22,36 @@ import plotly.express as px
 
 class TopicModelTuner(object):
     '''
-    TopicModelTuner - TMT - wraps a BERTopic instance and provides tools for 
-    optimizing the min_clust_size and min_sample parameters of an HDBSCAN
-    clustering instance when applied against a give UMAP reduction.
+    TopicModelTuner (TMT) provides a set of tools to  
+    optimize the min_clust_size and min_sample parameters of HDBSCAN. It is written
+    to compliment BERTopic default models and assumes that HDBSCAN is being used
+    to cluster a UMAP reduction of embeddings. 
     
-    A TMT instance can be initialized in a 'stand-alone' mode - without reliance on
-    an already existing BERTopic instance, or it can be bootstrapped from an 
-    existing BERTopic instance - either one already fit, or not. In either case, after 
-    obtaining suitable parameters its getBERTopicModel() function can be called
-    to return a functioning BERTopic instance with the desired parameters.
+    A TMT instance can be initialized with the convenience TMT.wrapBERTopicModel() function which
+    returns a TMT instance initialized with the embedding model, HDBSCAN and UMAP
+    parameters in a given BERTopic model. Otherwise, a new TMT instance can be
+    created from scratch. In either case, once the optimized parameters have been identified
+    TMT.getBERTopicModel() will return a BERTopic instance with the desired parameters.
     
-    TMT does not explicitly support tuning the UMAP instance, but could certainly be 
-    used in a situation where multiple UMAP instances have been generated with 
-    differing parameters. In this case TMT would be used to produce an individual
-    set of HDBSCAN parameters for each UMAP instance which could then be compared for 
-    the best results. 
+    TMT does not explicitly provide functionality for testing alternative UMAP parameters or
+    HDBSCAN parameters other than min_cluster_size or min_samples. However both the HDBSCAN
+    and UMAP models are exposed within the class and can be set to any parameters desired. 
     '''
     
-    def __init__(self, embeddings=None, 
-                 embedding_model=None, 
-                 docs=None, 
-                 reducer_model=None, 
-                 hdbscan_model=None,
-                 reducer_components=5,
-                 verbose=2):
+    def __init__(self, 
+                 embeddings: np.ndarray=None, #: pre-generated embeddings
+                 embedding_model=None, #: set for alternative transformer embedding model
+                 docs: List[str]=None, #: can be set here or when embeddings are created manually
+                 reducer_model=None, #: a UMAP instance
+                 hdbscan_model=None, #: an HDBSCAN instance
+                 reducer_components: int=5, #: for UMAP
+                 verbose: int=2): #: for UMAP
       '''
-      The default initialization does not assume a BERTopic model explicitly, but the class is 
-      currently written implicitly assuming the BERTopic, default, topic model pattern - 
+      Default initialization which assumes the BERTopic defaults for the embedding model 
+      ('all-MiniLM-L6-v2' sentence transformer) as well as HDBSCAN and UMAP parameters. 
+      
       1) 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
-      2) UMAP as the reduction method to 5 features using the same parameters as BERTopic defaults to.
+      2) UMAP as the reduction method set to 5 features using the same parameters as BERTopic defaults to.
       3) HDBSCAN as the clustering mechansim
 
       Options include:
@@ -65,16 +66,16 @@ class TopicModelTuner(object):
       omitting them.
       '''
       
-      self.verbose=verbose
-      self.embeddings = embeddings
-      self.reducer_components=reducer_components
+      self.verbose=verbose #: Passed through to UMAP
+      self.embeddings = embeddings #: Can be set with pre-generated embedding
+      self.reducer_components=reducer_components 
       self.viz_reducer = None
       self.reducer_model = reducer_model
       self.verbose = verbose
       self.hdbscan_model = hdbscan_model
       self.ResultsDF = None
       self.docs = docs
-      self.paramPair = namedtuple('paramPair', 'cs ss')
+      self._paramPair = namedtuple('paramPair', 'cs ss')
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -269,7 +270,7 @@ class TopicModelTuner(object):
         sample_size = int(cluster_size * sample_size_pct)
         if sample_size < 1 :
           sample_size = 1
-        return self.paramPair(cluster_size, sample_size)
+        return self._paramPair(cluster_size, sample_size)
       
   
     def _genRandomSearchParams(self, cluster_size_range, sample_size_pct_range, iters=20) :
@@ -300,7 +301,7 @@ class TopicModelTuner(object):
     def simpleSearch(self, cluster_sizes, sample_sizes) :
       if len(cluster_sizes) != len(sample_sizes) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
-      return self._runTests([self.paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
+      return self._runTests([self._paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
   
     def visualizeSearch(self, resultsDF) :
       '''
