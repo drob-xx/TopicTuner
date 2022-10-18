@@ -14,6 +14,7 @@ from random import randrange
 from collections import namedtuple
 from tqdm.notebook import tqdm
 from textwrap import wrap
+from typing import List
 import numpy as np
 import joblib
 import pandas as pd
