@@ -13,11 +13,11 @@ topic and therefore not contributing to the topic model.
 TopicTuner provides a TopicModelTuner class&#8201;&#8212;&#8201;a convenience wrapper for BERTopic Models that efficiently manages 
 the process of discovering optimized min_cluster_size and sample_size parameters, providing:
 
-- Random and Grid search functionality to discover optimized parameters for a given BERTopic model.
+- Random and grid search functionality to discover optimized parameters for a given BERTopic model.
 - A datastore that records all searches for a given model.
 - Visualizations to assist in parameter tuning and selection.
 - 'Import/Export' functionality to both wrap existing BERTopic models and to provide a BERTopic model tuned with the 
-selected parameters.
+optimized parameters.
 - Save and Load for persistance.
 
 To get you started this release includes both a demo notebook and [API documentation](http://htmlpreview.github.io/?https://github.com/drob-xx/TopicTuner/blob/ver-0.1/doc/topictuner.html)
