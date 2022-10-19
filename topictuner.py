@@ -352,6 +352,7 @@ class TopicModelTuner(object):
       docs = self.docs
       embeddings = self.embeddings
       viz_reduction = self.viz_reducer
+      self._paramPair = None 
       with open(fname, 'wb') as file :
           if not save_docs :
               self.docs = None
@@ -364,6 +365,7 @@ class TopicModelTuner(object):
       self.docs = docs
       self.embeddings = embeddings
       self.viz_reduction = viz_reduction
+      self._paramPair = namedtuple('paramPair', 'cs ss') 
      
     @staticmethod    
     def load(fname) :
@@ -372,7 +374,9 @@ class TopicModelTuner(object):
       '''
       
       with open(fname, 'rb') as file :    
-        return joblib.load(file)
+        restored = joblib.load(file)
+        restored._paramPair = namedtuple('paramPair', 'cs ss') 
+        return restored
 
 
 class UMAP_facade :
