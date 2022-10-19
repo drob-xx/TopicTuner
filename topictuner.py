@@ -311,38 +311,27 @@ class TopicModelTuner(object):
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
       return self._runTests([self._paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
   
-    def visualizeSearch(self, resultsDF) :
+    def visualizeSearch(self, resultsDF: pd.DataFrame) :
       '''
-
-      ### TO HERE
-      
-      Runs iters number of randomly generated cluster size and sample range pairs
-      against the embeddings. Note that sample sizes have to be a percentage value of 
-      a given cluster_size and cannot be 0. 
-
-      Returns both a plotly fig with a parrallel_coordinates chart of the run as well
-      as a summarized version of the data produced by the run. Each run will produce
-      its own summary table, but a history of all runs is also stored in the objects ResultsDF
-      attribute.
+      Creates a plotly parrallel coordinates graph of the searches contained in the DataFrame. 
+      Returns a plotly fig object.
       '''
     
       # if self.reducer_model.embedding_.sum() == 0  :
       #     raise AttributeError('Reducer not run yet, call createReduction() first')
 
-      fig = px.parallel_coordinates(resultsDF,
+      return px.parallel_coordinates(resultsDF,
                                     color="number_uncategorized", 
                                     labels={"min_cluster_size": "min_cluster_size",
-                                            "sample_size": "ample_size", 
+                                            "sample_size": "sample_size", 
                                             "number_of_clusters": "number_of_clusters",
                                             "number_uncategorized": "number_uncategorized", },)
-      return fig
   
     def summarizeResults(self, summaryDF : pd.DataFrame) :
       '''
-      Pass this a DataFrame with run results - either the summary DF from a given
-      run or the historical table run and it will return a table where each record 
-      represents contains the smallest number of uncategorized documents for a given
-      number of clusters.
+      Takes DataFrame of results and returns a DataFrame containing only one record for 
+      each value of number of clusters. Returns the record with the lowest number of 
+      uncategorized documents.
       '''
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
@@ -386,11 +375,10 @@ class TopicModelTuner(object):
         return joblib.load(file)
 
 
-
 class UMAP_facade :
     '''
-    Since by default BERTopic re-runs UMAP each time fit() is called,
-    this class allows for a BERTopic instance to have fixed UMAP embedding. 
+    By default BERTopic re-runs UMAP each time fit() is called,
+    this class allows for a BERTopic instance to have a fixed UMAP embedding. 
     Necessary to achieve the best optimized HDBSCAN results because each 
     UMAP reduction will vary and require slightly different HDBSCAN parameters.
     '''
