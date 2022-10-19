@@ -91,7 +91,7 @@ class TopicModelTuner(object):
                              verbose=self.verbose)
 
     @staticmethod
-    def wrapBERTopicModel(BERTopicModel : BERTopic, verbose int = 2 ) :
+    def wrapBERTopicModel(BERTopicModel : BERTopic, verbose: int = 2 ) :
       '''
       This is a helper function which returns a TMT instance using the values from a BERTopic instance.
       '''
