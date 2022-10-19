@@ -343,7 +343,7 @@ class TopicModelTuner(object):
              fname,
              save_docs=True,
              save_embeddings=True,
-             save_viz_reduction=True) :
+             save_viz_reducer=True) :
       '''
       Saves the TMT object. User can choose whether or not to save docs, embeddings and/or
       the viz reduction
@@ -351,13 +351,13 @@ class TopicModelTuner(object):
       
       docs = self.docs
       embeddings = self.embeddings
-      viz_reduction = self.viz_reduction
+      viz_reduction = self.viz_reducer
       with open(fname, 'wb') as file :
           if not save_docs :
               self.docs = None
           if not save_embeddings :
               self.embeddings = None
-          if not save_viz_reduction :
+          if not save_viz_reducer :
               self.viz_reduction = None
           joblib.dump(self, file)
           
