@@ -3,11 +3,10 @@
 ## The Problem
 Out of the box, BERTopic relies upon HDBSCAN to cluster topics. Two of the most important HDBSCAN parameters, 
 min_cluster_size and sample_size will almost always have a dramatic effect on cluster formation. They will
-determine the number of clusters created and the number of uncategorized records assigned to the -1 category.
-
-The resultant topic model will more often than not be constructed from a large, generally unmanageable, number
-of topics. The default setting will often lead to a large percentage of documents not being assigned to a 
-topic and therefore not contributing to the topic model.
+determine the number of clusters created and the number of uncategorized records assigned to the -1 category. The resultant topic model will,
+more often than not, be constructed from a large and unmanageable number
+of topics. Additionally, the default setting often lead to a large percentage of documents not being assigned to a 
+topic and therefore not contributing to the topic model itself.
 
 ## The Solution
 TopicTuner provides a TopicModelTuner class&#8201;&#8212;&#8201;a convenience wrapper for BERTopic Models that efficiently manages 
