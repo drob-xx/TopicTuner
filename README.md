@@ -17,5 +17,5 @@ the process of discovering optimized min_cluster_size and sample_size parameters
 optimized parameters.
 - Save and Load for persistance.
 
-To get you started this release includes both a demo notebook and [API documentation](http://htmlpreview.github.io/?https://github.com/drob-xx/TopicTuner/blob/main/doc/topictuner.html)
+To get you started this release includes both a [demo notebook](https://github.com/drob-xx/TopicTuner/blob/main/TopicTunerDemo.ipynb) and [API documentation](http://htmlpreview.github.io/?https://github.com/drob-xx/TopicTuner/blob/main/doc/topictuner.html)
 
