@@ -273,7 +273,7 @@ class TopicModelTuner(object):
           searchParams.append(self._returnParamsFromCSandPercent(cluster_size, sample_size_pct))
       return searchParams
   
-    def randomSearch(self, cluster_size_range: List[int], sample_size_pct_range: List[int], iters=20) :
+    def randomSearch(self, cluster_size_range: List[int], sample_size_pct_range: List[float], iters=20) :
       '''
       Run a passel of HDBSCAN within a given range of parameters.
       cluster_size_range is a list of ints and sample_size_pct_range is a list of percentage
@@ -294,9 +294,9 @@ class TopicModelTuner(object):
       '''
       Note that this is not a really a grid search. Rather this function will use each value
       in cluster_sizes to initiate a clustering on each percent value in sample_sizes. For 
-      example if the values are [*range(10,101)] and [*range(10, 101)]/10, a clustering for 
+      example if the values are [*range(100,102)] and [val/100 for val in [*range(10, 101 ,10)]], a clustering for 
       each percentage value in sample_sizes for each value in cluster_sizes would be run
-      for a total of 100 clusterings. To perform a more complete grid search see TMT.simpleSearch.
+      for a total of 20 clusterings.
       '''
       searchParams = self._genGridSearchParams(cluster_sizes, sample_sizes)
       return self._runTests(searchParams)
