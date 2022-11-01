@@ -311,7 +311,7 @@ class TopicModelTuner(object):
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
       return self._runTests([self._paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
 
-    def completeGridSearch(searchRange: List[int]) :
+    def completeGridSearch(self, searchRange: List[int]) :
       '''
       For any n (int) in searchRange, generates all possible sample_size values (1 to n) and performs
       the search.
