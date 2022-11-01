@@ -341,13 +341,15 @@ class TopicModelTuner(object):
                                             "number_of_clusters": "number_of_clusters",
                                             "number_uncategorized": "number_uncategorized", },)
   
-    def summarizeResults(self, summaryDF : pd.DataFrame = self.ResultsDF) :
+    def summarizeResults(self, summaryDF : pd.DataFrame = None) :
       '''
       Takes DataFrame of results and returns a DataFrame containing only one record for 
       each value of number of clusters. Returns the record with the lowest number of 
       uncategorized documents. By default runs against self.ResultsDF - the aggregation of all
       searches run for this model.
       '''
+      if summaryDF == None :
+        summaryDF = self.ResultsDF
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
