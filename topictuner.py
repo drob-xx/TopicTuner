@@ -310,7 +310,21 @@ class TopicModelTuner(object):
       if len(cluster_sizes) != len(sample_sizes) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
       return self._runTests([self._paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
-  
+
+    def completeGridSearch(searchRange: List[int]) :
+      '''
+      For any n (int) in searchRange, generates all possible sample_size values (1 to n) and performs
+      the search.
+      '''
+      cs_list, ss_list = [], []
+      for cs_val in searchRange :
+          for ss_val in [*range(1,cs_val+1)] :
+            cs_list.append(cs_val)
+            ss_list.append(ss_val)
+      self.simpleSearch(cslist, ss_list) 
+
+
+                   
     def visualizeSearch(self, resultsDF: pd.DataFrame) :
       '''
       Creates a plotly parrallel coordinates graph of the searches contained in the DataFrame. 
@@ -327,11 +341,12 @@ class TopicModelTuner(object):
                                             "number_of_clusters": "number_of_clusters",
                                             "number_uncategorized": "number_uncategorized", },)
   
-    def summarizeResults(self, summaryDF : pd.DataFrame) :
+    def summarizeResults(self, summaryDF : pd.DataFrame = self.ResultsDF) :
       '''
       Takes DataFrame of results and returns a DataFrame containing only one record for 
       each value of number of clusters. Returns the record with the lowest number of 
-      uncategorized documents.
+      uncategorized documents. By default runs against self.ResultsDF - the aggregation of all
+      searches run for this model.
       '''
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
