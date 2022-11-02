@@ -321,7 +321,7 @@ class TopicModelTuner(object):
           for ss_val in [*range(1,cs_val+1)] :
             cs_list.append(cs_val)
             ss_list.append(ss_val)
-      self.simpleSearch(cslist, ss_list) 
+      self.simpleSearch(cs_list, ss_list) 
 
 
                    
