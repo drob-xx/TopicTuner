@@ -76,6 +76,8 @@ class TopicModelTuner(object):
       self.ResultsDF = None # A running collection of all the parameters and results if a DataFrame
       self.docs = docs
       self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
+      self.best_cs = None
+      self.best_ss = None
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
