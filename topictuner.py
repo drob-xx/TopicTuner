@@ -232,7 +232,10 @@ class TopicModelTuner(object):
       '''
       Runs a passel of HDBSCAN clusterings for searchParams
       '''
-      results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
+      if self.verbose > 1 :
+        results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
+      else :
+        results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
       RunResultsDF = pd.DataFrame()
       RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
       RunResultsDF['sample_size'] = [tupe[1] for tupe in results]
