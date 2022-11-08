@@ -103,7 +103,7 @@ class TopicModelTuner(object):
                                hdbscan_model=BERTopicModel.hdbscan_model,
                                verbose=verbose)
 
-    def getBERTopicModel(self, min_cluster_size : int, min_samples : int):
+    def getBERTopicModel(self, min_cluster_size : int = None, min_samples : int = None):
       '''
       Returns a BERTopic model with the specified HDBSCAN parameters. The user is left
       to specify their chosen best settings after running a series of parameters searches.
@@ -118,12 +118,21 @@ class TopicModelTuner(object):
       as used for tuning. The BERTopic instance returned by this function uses UMAP_facade (see below)
       so that instead of re-runing UMAP it returns the pre-processed reduction instead.
       '''
+      if min_cluster_size == None :
+        if self.best_cs != None :
+          min_cluster_size = self.best_cs
+
+      if min_samples == None :
+        min_samples = self.best_ss
+            
+      
       hdbscan_model = HDBSCAN(metric='euclidean',
                                       cluster_selection_method='eom',
                                       prediction_data=True,
                                       min_cluster_size=min_cluster_size,
                                       min_samples=min_samples,
                                       )
+
 
       return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
                       hdbscan_model=hdbscan_model)
@@ -180,7 +189,7 @@ class TopicModelTuner(object):
       return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
       
-    def visualizeEmbeddings(self, min_cluster_size: int, sample_size: int) :
+    def visualizeEmbeddings(self, min_cluster_size: int = None, sample_size: int = None) :
       '''
       Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
       If TMT.docs has been set then the first 400 chars of each document will be shown as a 
@@ -188,6 +197,7 @@ class TopicModelTuner(object):
   
       Returns a plotly fig object
       '''
+      
       topics = self.runHDBSCAN(min_cluster_size, sample_size)
 
       VizDF = pd.DataFrame()
@@ -208,23 +218,30 @@ class TopicModelTuner(object):
 
       return fig    
 
-    def runHDBSCAN(self, min_cluster_size: int, sample_size) :
+    def runHDBSCAN(self, min_cluster_size: int , sample_size: int) :
       '''
       Cluster reduced embeddings. sample_size must be more than 0 and less than
       or equal to min_cluster_size.
       '''
 
+      if min_cluster_size == None :
+        if self.best_cs != None :
+          min_cluster_size = self.best_cs
+
+      if min_samples == None :
+        min_samples = self.best_ss
+      
       if self.hdbscan_model == None :
           hdbscan_model = HDBSCAN(metric='euclidean',
                                       cluster_selection_method='eom',
                                       prediction_data=True,
-                                      min_samples=sample_size,
                                       min_cluster_size=min_cluster_size,
+                                      min_samples=sample_size,
                                       )
       else :
           hdbscan_model = copy(self.hdbscan_model)
-          hdbscan_model.min_samples = sample_size
           hdbscan_model.min_cluster_size = min_cluster_size
+          hdbscan_model.min_samples = sample_size
   
       return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
 
