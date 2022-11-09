@@ -1,8 +1,7 @@
 from bertopic import BERTopic
 from umap import UMAP
-from hdbscan import HDBSCAN
+from hdbscan import HDBSCAN         
 from sentence_transformers import SentenceTransformer
-
 from copy import copy
 from random import randrange
 from collections import namedtuple
@@ -76,6 +75,8 @@ class TopicModelTuner(object):
       self.ResultsDF = None # A running collection of all the parameters and results if a DataFrame
       self.docs = docs
       self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
+      self.best_cs = None
+      self.best_ss = None
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -101,7 +102,7 @@ class TopicModelTuner(object):
                                hdbscan_model=BERTopicModel.hdbscan_model,
                                verbose=verbose)
 
-    def getBERTopicModel(self, min_cluster_size : int, min_samples : int):
+    def getBERTopicModel(self, min_cluster_size : int = None, min_samples : int = None):
       '''
       Returns a BERTopic model with the specified HDBSCAN parameters. The user is left
       to specify their chosen best settings after running a series of parameters searches.
@@ -116,12 +117,21 @@ class TopicModelTuner(object):
       as used for tuning. The BERTopic instance returned by this function uses UMAP_facade (see below)
       so that instead of re-runing UMAP it returns the pre-processed reduction instead.
       '''
+      if min_cluster_size == None :
+        if self.best_cs != None :
+          min_cluster_size = self.best_cs
+
+      if min_samples == None :
+        min_samples = self.best_ss
+            
+      
       hdbscan_model = HDBSCAN(metric='euclidean',
                                       cluster_selection_method='eom',
                                       prediction_data=True,
                                       min_cluster_size=min_cluster_size,
                                       min_samples=min_samples,
                                       )
+
 
       return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
                       hdbscan_model=hdbscan_model)
@@ -178,14 +188,15 @@ class TopicModelTuner(object):
       return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
       
-    def visualizeEmbeddings(self, min_cluster_size: int, sample_size: int) :
+    def visualizeEmbeddings(self, min_cluster_size: int = None, sample_size: int = None) :
       '''
       Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
       If TMT.docs has been set then the first 400 chars of each document will be shown as a 
       hover over each data point.
   
       Returns a plotly fig object
-      '''
+      '''  
+      
       topics = self.runHDBSCAN(min_cluster_size, sample_size)
 
       VizDF = pd.DataFrame()
@@ -206,23 +217,30 @@ class TopicModelTuner(object):
 
       return fig    
 
-    def runHDBSCAN(self, min_cluster_size: int, sample_size) :
+    def runHDBSCAN(self, min_cluster_size: int = None, sample_size: int = None) :
       '''
       Cluster reduced embeddings. sample_size must be more than 0 and less than
       or equal to min_cluster_size.
       '''
 
+      if min_cluster_size == None :
+        if self.best_cs != None :
+          min_cluster_size = self.best_cs
+
+      if sample_size == None :
+        sample_size = self.best_ss
+      
       if self.hdbscan_model == None :
           hdbscan_model = HDBSCAN(metric='euclidean',
                                       cluster_selection_method='eom',
                                       prediction_data=True,
-                                      min_samples=sample_size,
                                       min_cluster_size=min_cluster_size,
+                                      min_samples=sample_size,
                                       )
       else :
           hdbscan_model = copy(self.hdbscan_model)
-          hdbscan_model.min_samples = sample_size
           hdbscan_model.min_cluster_size = min_cluster_size
+          hdbscan_model.min_samples = sample_size
   
       return hdbscan_model.fit_predict(self.reducer_model.embedding_)  
 
@@ -232,7 +250,10 @@ class TopicModelTuner(object):
       '''
       Runs a passel of HDBSCAN clusterings for searchParams
       '''
-      results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
+      if self.verbose > 1 :
+        results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in tqdm(searchParams)] 
+      else :
+        results = [(params.cs, params.ss, self.runHDBSCAN(params.cs, params.ss)) for params in searchParams] 
       RunResultsDF = pd.DataFrame()
       RunResultsDF['min_cluster_size'] = [tupe[0] for tupe in results]
       RunResultsDF['sample_size'] = [tupe[1] for tupe in results]
@@ -273,7 +294,7 @@ class TopicModelTuner(object):
           searchParams.append(self._returnParamsFromCSandPercent(cluster_size, sample_size_pct))
       return searchParams
   
-    def randomSearch(self, cluster_size_range: List[int], sample_size_pct_range: List[int], iters=20) :
+    def randomSearch(self, cluster_size_range: List[int], sample_size_pct_range: List[float], iters=20) :
       '''
       Run a passel of HDBSCAN within a given range of parameters.
       cluster_size_range is a list of ints and sample_size_pct_range is a list of percentage
@@ -294,9 +315,9 @@ class TopicModelTuner(object):
       '''
       Note that this is not a really a grid search. Rather this function will use each value
       in cluster_sizes to initiate a clustering on each percent value in sample_sizes. For 
-      example if the values are [*range(10,101)] and [*range(10, 101)]/10, a clustering for 
+      example if the values are [*range(100,102)] and [val/100 for val in [*range(10, 101 ,10)]], a clustering for 
       each percentage value in sample_sizes for each value in cluster_sizes would be run
-      for a total of 100 clusterings. To perform a more complete grid search see TMT.simpleSearch.
+      for a total of 20 clusterings.
       '''
       searchParams = self._genGridSearchParams(cluster_sizes, sample_sizes)
       return self._runTests(searchParams)
@@ -310,7 +331,21 @@ class TopicModelTuner(object):
       if len(cluster_sizes) != len(sample_sizes) :
         raise ValueError('Length of cluster sizes and samples sizes lists must match')
       return self._runTests([self._paramPair(cs,ss) for cs, ss in zip(cluster_sizes, sample_sizes)])
-  
+
+    def completeGridSearch(self, searchRange: List[int]) :
+      '''
+      For any n (int) in searchRange, generates all possible sample_size values (1 to n) and performs
+      the search.
+      '''
+      cs_list, ss_list = [], []
+      for cs_val in searchRange :
+          for ss_val in [*range(1,cs_val+1)] :
+            cs_list.append(cs_val)
+            ss_list.append(ss_val)
+      self.simpleSearch(cs_list, ss_list) 
+
+
+                   
     def visualizeSearch(self, resultsDF: pd.DataFrame) :
       '''
       Creates a plotly parrallel coordinates graph of the searches contained in the DataFrame. 
@@ -327,12 +362,15 @@ class TopicModelTuner(object):
                                             "number_of_clusters": "number_of_clusters",
                                             "number_uncategorized": "number_uncategorized", },)
   
-    def summarizeResults(self, summaryDF : pd.DataFrame) :
+    def summarizeResults(self, summaryDF : pd.DataFrame = None) :
       '''
       Takes DataFrame of results and returns a DataFrame containing only one record for 
       each value of number of clusters. Returns the record with the lowest number of 
-      uncategorized documents.
+      uncategorized documents. By default runs against self.ResultsDF - the aggregation of all
+      searches run for this model.
       '''
+      if summaryDF == None :
+        summaryDF = self.ResultsDF
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
