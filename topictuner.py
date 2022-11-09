@@ -195,7 +195,7 @@ class TopicModelTuner(object):
       hover over each data point.
   
       Returns a plotly fig object
-      '''
+      '''  
       
       topics = self.runHDBSCAN(min_cluster_size, sample_size)
 
