@@ -225,7 +225,7 @@ class TopicModelTuner(object):
 
       if min_cluster_size == None :
         if self.best_cs != None :
-          min_cluster_size = self.best_cs:
+          min_cluster_size = self.best_cs
         else :
           min_cluster_size = 10 # BERTopic default 
 
