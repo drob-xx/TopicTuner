@@ -1,8 +1,7 @@
 from bertopic import BERTopic
 from umap import UMAP
-from hdbscan import HDBSCAN
+from hdbscan import HDBSCAN         
 from sentence_transformers import SentenceTransformer
-
 from copy import copy
 from random import randrange
 from collections import namedtuple
@@ -218,7 +217,7 @@ class TopicModelTuner(object):
 
       return fig    
 
-    def runHDBSCAN(self, min_cluster_size: int , sample_size: int) :
+    def runHDBSCAN(self, min_cluster_size: int = None, sample_size: int = None) :
       '''
       Cluster reduced embeddings. sample_size must be more than 0 and less than
       or equal to min_cluster_size.
@@ -228,8 +227,8 @@ class TopicModelTuner(object):
         if self.best_cs != None :
           min_cluster_size = self.best_cs
 
-      if min_samples == None :
-        min_samples = self.best_ss
+      if sample_size == None :
+        sample_size = self.best_ss
       
       if self.hdbscan_model == None :
           hdbscan_model = HDBSCAN(metric='euclidean',
