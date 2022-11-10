@@ -371,8 +371,12 @@ class TopicModelTuner(object):
       uncategorized documents. By default runs against self.ResultsDF - the aggregation of all
       searches run for this model.
       '''
-      if summaryDF == None :
-        summaryDF = self.ResultsDF
+      try : # no good way to test. If summaryDF has been set then ==None will error 
+        if summaryDF == None :
+          summaryDF = self.ResultsDF
+      except ValueError as e :
+        pass # summaryDF has been set - so no problem
+        
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
