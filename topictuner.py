@@ -78,7 +78,7 @@ class TopicModelTuner(object):
       self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
       self.best_cs = None
       self.best_ss = None
-      self.reducer_random_seed = None
+      self.random_state = None
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -170,6 +170,7 @@ class TopicModelTuner(object):
 
       if random_state != None :  
         self.reducer_model.random_state = random_state
+        self.random_state = random_state
       else :
         if self.random_state == None :
           self.reducer_model.random_state = randrange(1000000)
