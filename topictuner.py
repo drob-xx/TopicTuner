@@ -12,6 +12,7 @@ import numpy as np
 import joblib
 import pandas as pd
 import plotly.express as px
+from random import randrange
 
 
 class TopicModelTuner(object):
@@ -40,9 +41,9 @@ class TopicModelTuner(object):
                  reducer_model = None, #: a UMAP instance
                  hdbscan_model = None, #: an HDBSCAN instance
                  reducer_components: int = 5, #: for UMAP
-                 verbose: int = 2): #: for UMAP
+                 verbose: int = 0): #: for UMAP
       '''
-      Unless explicitly set, TMT Uses the same default parame defaults for the embedding model 
+      Unless explicitly set, TMT Uses the same default param defaults for the embedding model 
       as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. 
 
       - 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
@@ -77,6 +78,7 @@ class TopicModelTuner(object):
       self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
       self.best_cs = None
       self.best_ss = None
+      self.reducer_random_seed = None
 
       if embedding_model == None :
           self.model = SentenceTransformer('all-MiniLM-L6-v2')
@@ -136,6 +138,9 @@ class TopicModelTuner(object):
       return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
                       hdbscan_model=hdbscan_model)
 
+    def _setBestParams(self, best_cs : int=10, best_ss : int=None) :
+      self.best_cs = best_cs
+      self.best_ss = best_ss
     
     def createEmbeddings(self, docs : List[str] = None) :
       '''
@@ -153,15 +158,23 @@ class TopicModelTuner(object):
       self.embeddings = self.model.encode(self.docs)
     
         
-    def reduce(self) :
+    def reduce(self, random_state : int=None) :
       '''
       Reduce dimensionality of the embeddings
       '''
+      if random_state == None :
+        random_state == self.reducer_random_seed
       try :
         if self.embeddings == None :
           raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings directly')
       except ValueError as e :
           pass # embeddings already set
+
+      if random_state != None :  
+        self.reducer_model.random_state = random_state
+      else :
+        self.reducer_model.random_state = randrange(1000000)
+        self.random_state = self.reducer_model.random_state
       self.reducer_model.fit(self.embeddings)
     
     def createVizReduction(self) :
