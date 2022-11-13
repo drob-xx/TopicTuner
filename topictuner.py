@@ -162,8 +162,6 @@ class TopicModelTuner(object):
       '''
       Reduce dimensionality of the embeddings
       '''
-      if random_state == None :
-        random_state == self.reducer_random_seed
       try :
         if self.embeddings == None :
           raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings directly')
@@ -173,8 +171,12 @@ class TopicModelTuner(object):
       if random_state != None :  
         self.reducer_model.random_state = random_state
       else :
-        self.reducer_model.random_state = randrange(1000000)
-        self.random_state = self.reducer_model.random_state
+        if self.random_state == None :
+          self.reducer_model.random_state = randrange(1000000)
+          self.random_state = self.reducer_model.random_state
+        else :
+          self.reducer_model.random_state = self.random_state
+
       self.reducer_model.fit(self.embeddings)
     
     def createVizReduction(self) :
