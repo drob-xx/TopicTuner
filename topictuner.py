@@ -13,7 +13,7 @@ import joblib
 import pandas as pd
 import plotly.express as px
 from random import randrange
-from sklearn import TSNE
+from sklearn.manifold import TSNE
 
 
 class TopicModelTuner(object):
