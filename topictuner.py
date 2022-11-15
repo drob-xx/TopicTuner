@@ -13,6 +13,7 @@ import joblib
 import pandas as pd
 import plotly.express as px
 from random import randrange
+from sklearn import TSNE
 
 
 class TopicModelTuner(object):
@@ -182,7 +183,7 @@ class TopicModelTuner(object):
 
       self.reducer_model.fit(self.embeddings)
     
-    def createVizReduction(self) :
+    def createVizReduction(self, method='UMAP') :
       '''
       Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
       '''
@@ -192,9 +193,13 @@ class TopicModelTuner(object):
       except ValueError as e :
           pass # embeddings already set
 
-      self.viz_reducer = copy(self.reducer_model)
-      self.viz_reducer.n_components = 2
-      self.viz_reducer.fit(self.embeddings)
+      if method == 'UMAP' :
+        self.viz_reducer = copy(self.reducer_model)
+        self.viz_reducer.n_components = 2
+        self.viz_reducer.fit(self.embeddings)
+      else : # Only TSNE is supported
+        self.viz_reducer = TSNE(n_components=2, verbose=self.verbose, random_state=self.random_state)
+        self.viz_reducer.fit(self.embeddings)
 
     def getVizCoords(self) :
       '''
@@ -202,7 +207,7 @@ class TopicModelTuner(object):
       '''
       if self.viz_reducer == None :
           raise AttributeError('Visualization reduction not performed, call createVizReduction first')
-
+ 
       return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
 
       
