@@ -451,7 +451,7 @@ class UMAP_facade :
         Pass in the umap_embeddings you want to optimize HDBSCAN for. 
         ''' 
 
-        self.embeddings_ = umap_embeddings
+        self.embedding_ = umap_embeddings
         
     def fit(self, x, y) :
         '''
@@ -465,4 +465,8 @@ class UMAP_facade :
         Returns fixed embeddings,
         NOTE RE EMBEDDINGS PARAM
         ''' 
-        return self.embeddings_ 
+        return self.embedding_ 
+
+    def fit_transform(self, X, y=None) :
+
+        return self.embedding_
