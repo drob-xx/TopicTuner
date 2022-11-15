@@ -2,7 +2,7 @@ from bertopic import BERTopic
 from umap import UMAP
 from hdbscan import HDBSCAN         
 from sentence_transformers import SentenceTransformer
-from copy import copy
+from copy import copy, deepcopy
 from random import randrange
 from collections import namedtuple
 from tqdm.notebook import tqdm
@@ -135,7 +135,9 @@ class TopicModelTuner(object):
                                       )
 
 
-      return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
+      # return BERTopic(umap_model=UMAP_facade(self.reducer_model.embedding_),
+      #                 hdbscan_model=hdbscan_model)
+      return BERTopic(umap_model=deepcopy(self.reducer_model),
                       hdbscan_model=hdbscan_model)
 
     def _setBestParams(self, best_cs : int=10, best_ss : int=None) :
