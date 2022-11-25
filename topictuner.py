@@ -3,7 +3,6 @@ from umap import UMAP
 from hdbscan import HDBSCAN         
 from sentence_transformers import SentenceTransformer
 from copy import copy, deepcopy
-from random import randrange
 from collections import namedtuple
 from tqdm.notebook import tqdm
 from textwrap import wrap
@@ -404,7 +403,7 @@ class TopicModelTuner(object):
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
             resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
       resultSummaryDF.reset_index(inplace=True, drop=True)
-      return resultSummaryDF
+      return resultSummaryDF.sort_values(by=['number_of_clusters'])
 
     def save(self, 
              fname,
