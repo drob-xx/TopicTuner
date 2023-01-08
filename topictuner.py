@@ -354,29 +354,29 @@ class TopicModelTuner(BaseHDBSCANTuner):
       self.embeddings = self.model.encode(self.docs)
     
         
-    def reduce(self, random_state : int=None) :
-      '''
-      Reduce dimensionality of the embeddings
-      '''
-      try :
-        # if self.embeddings == None :
-        if not np.any(self.embeddings) :
-          raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings directly')
-      except ValueError as e :
-          pass # embeddings not set
-
-      if random_state != None :  
-        self.reducer_model.random_state = random_state
-        self.random_state = random_state
-      else :
-        if self.reducer_model.random_state == None :
-          self.reducer_model.random_state = randrange(1000000)
-          self.random_state = self.reducer_model.random_state
-        else :
-          self.reducer_model.random_state = self.random_state
-
-      self.reducer_model.fit(self.embeddings)
-      self.target_embeddings = self.reducer_model.embedding_ 
+    def reduce(self) :
+        '''
+        Reduce dimensionality of the embeddings
+        '''
+        try :
+          # if self.embeddings == None :
+          if not np.any(self.embeddings) :
+            raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings directly')
+        except ValueError as e :
+            pass # embeddings not set
+        
+        if self.reducer_model.random_state != None :  
+          self.reducer_random_state = self.reducer_model.random_state # The reducer has already set a random_state
+        else :  
+          random_state = self.reducer_random_state # could be None
+          if random_state != None :  # Reducer random state was not set but tmt random state was
+              self.reducer_model.random_state = random_state  # set reducer model random state
+          else : # set new random state and capture it
+              self.reducer_model.random_state = randrange(1000000) # new value
+              self.reducer_random_state = self.reducer_model.random_state # sync TMT random state
+        
+        self.reducer_model.fit(self.embeddings)    
+        self.target_embeddings = self.reducer_model.embedding_ 
     
     def createVizReduction(self, method='UMAP') :
       '''

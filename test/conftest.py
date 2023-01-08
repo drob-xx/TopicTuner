@@ -8,12 +8,13 @@ import pytest
 from topictuner import TopicModelTuner as TMT
 from sklearn.datasets import fetch_20newsgroups
 
-@pytest.fixture()
+
+@pytest.fixture(scope="module")
 def documents():
     print('fetching docs')
     return fetch_20newsgroups(subset='all',  remove=('headers', 'footers', 'quotes'))['data'][:200]
     
-@pytest.fixture()
+@pytest.fixture(scope="module")
 def tmt_instance():
     print('begining test')
     tmt = TMT()
