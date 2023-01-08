@@ -1,0 +1,7 @@
+
+test/reduced_embeddings
+test/embeddings
+*.pyc
+.project
+.pydevproject
+*.ipynb
