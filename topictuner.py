@@ -14,50 +14,59 @@ import plotly.express as px
 from random import randrange
 from sklearn.manifold import TSNE
 
-
 class BaseHDBSCANTuner(object):
     def __init__(self,
-                 clusterer = None, #: an HDBSCAN instance
-                 target_embeddings = None, # embedding to be clustered
+                 HDBSCAN_model = None, #: an HDBSCAN instance
+                 target_vectors = None, # vectors to be clustered
                  verbose: int = 0): 
         
-        self.data_array = None   
-        self.hdbscan_model = clusterer
+        self.hdbscan_model = HDBSCAN_model
+        self.target_vectors = target_vectors
         self.verbose = verbose
-        self.target_embeddings = target_embeddings
         self.hdbscan_params = {}
+        self.ResultsDF = None # A running collection of all the parameters and results if a DataFrame
+        
+        self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
+        self.bestParams = self._paramPair(None, None)
+    
+    def _check_CS_SS(self, min_cluster_size: int, min_samples: int):
 
+      if (min_cluster_size == None) & (min_samples != None)  :
+        raise ValueError('Must set min_cluster_size, can not be None unless min_samples is None')
+      if (min_samples > min_cluster_size) :
+        raise ValueError('min_samples must be equal or less than min_cluster_size')
+
+      if self.best_cs == None & self.best_ss == None :
+          raise ValueError('min_cluster_size and min_samples must be set (no default (best) values set for this model)')
+
+      if min_cluster_size == None : 
+        min_cluster_size = self.bestParams.cs # go ahead and set - bestParams is either None or a better value
+        min_samples = self.bestParams.ss # go ahead and set - if min_cluster_size was None then this has to be None or a better value
+
+      return min_cluster_size, min_samples
+
+    @bestParams.setter
+    def bestParams(self, min_cluster_size: int, sample_size: int=None):
+       self.bestParams.cs, self.bestParams.ss = self._check_CS_SS(min_cluster_size, sample_size)
+            
     def runHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None) :
       '''
       Cluster reduced embeddings. min_samples must be more than 0 and less than
       or equal to min_cluster_size.
       '''
-
-      hdbscan_params = copy(self.hdbscan_params)
-      if (min_samples != None) & (min_cluster_size == None) :
-        raise ValueError('Must set min_cluster_size if setting min_samples')
-      if (min_samples > min_cluster_size) :
-        raise ValueError('min_samples must be equal or less than min_cluster_size')
-
-      if min_cluster_size == None :
-        if self.best_cs != None :
-          min_cluster_size = self.best_cs
-
-      if min_samples == None :
-          if self.best_ss != None :
-            min_samples = self.best_ss
-
+      min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples)
           
       if self.hdbscan_model == None :
+        hdbscan_params = copy(self.hdbscan_params)
         hdbscan_params['min_cluster_size'] = min_cluster_size
         hdbscan_params['min_samples'] = min_samples
         hdbscan_model = HDBSCAN(**hdbscan_params)
       else :
-          hdbscan_model = copy(self.hdbscan_model)
-          hdbscan_model.min_cluster_size = min_cluster_size
-          hdbscan_model.min_samples = min_samples
+        hdbscan_model = copy(self.hdbscan_model)
+        hdbscan_model.min_cluster_size = min_cluster_size
+        hdbscan_model.min_samples = min_samples
   
-      return hdbscan_model.fit_predict(self.target_embeddings)  
+      return hdbscan_model.fit_predict(self.target_vectors)  
 
     def randomSearch(self, cluster_size_range: List[int], min_samples_pct_range: List[float], iters=20) :
       '''
@@ -76,7 +85,7 @@ class BaseHDBSCANTuner(object):
       searchParams = self._genRandomSearchParams(cluster_size_range, min_samples_pct_range, iters)
       return self._runTests(searchParams)
 
-    def psuedoGridSearch(self, cluster_sizes: List[int], min_sampless: List[float]) :
+    def psuedoGridSearch(self, cluster_sizes: List[int], min_samples: List[float]) :
       '''
       Note that this is not a really a grid search. Rather this function will use each value
       in cluster_sizes to initiate a clustering on each percent value in min_sampless. For 
@@ -84,7 +93,7 @@ class BaseHDBSCANTuner(object):
       each percentage value in min_sampless for each value in cluster_sizes would be run
       for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of those for 10%, 20%, 30%,...100%).
       '''
-      searchParams = self._genGridSearchParams(cluster_sizes, min_sampless)
+      searchParams = self._genGridSearchParams(cluster_sizes, min_samples)
       return self._runTests(searchParams)
 
     def simpleSearch(self, cluster_sizes: List[int], min_sampless: List[int]) :
@@ -108,8 +117,6 @@ class BaseHDBSCANTuner(object):
             cs_list.append(cs_val)
             ss_list.append(ss_val)
       self.simpleSearch(cs_list, ss_list) 
-
-
                    
     def visualizeSearch(self, resultsDF: pd.DataFrame) :
       '''
@@ -133,12 +140,12 @@ class BaseHDBSCANTuner(object):
       try : # no good way to test. If summaryDF has been set then ==None will error 
         if summaryDF == None :
           summaryDF = self.ResultsDF
-      except ValueError as e :
+      except :
         pass # summaryDF has been set - so no problem
         
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
-            resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
+        resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
       resultSummaryDF.reset_index(inplace=True, drop=True)
       return resultSummaryDF.sort_values(by=['number_of_clusters'])
   
@@ -188,16 +195,7 @@ class BaseHDBSCANTuner(object):
       self.ResultsDF.reset_index(inplace=True, drop=True)
   
       return RunResultsDF
-     
-    def _setBestParams(self, best_cs : int=10, best_ss : int=None) :
-      '''
-      A convenience function to set best values for min_cluster_size and min_samples for a particular model
-      '''
-      self.best_cs = best_cs
-      self.best_ss = best_ss    
-    
-   
-
+        
 class TopicModelTuner(BaseHDBSCANTuner):
     '''
     TopicModelTuner (TMT) is a tool to optimize the min_clust_size and min_sample parameters 
@@ -218,19 +216,20 @@ class TopicModelTuner(BaseHDBSCANTuner):
     '''
     
     def __init__(self, 
-                 embeddings: np.ndarray = None, #: pre-generated embeddings
-                 embedding_model = None, #: set for alternative transformer embedding model
-                 docs: List[str] = None, #: can be set here or when embeddings are created manually
-                 reducer_model = None, #: a UMAP instance
+                 embeddings: np.ndarray = None, # pre-generated embeddings
+                 embedding_model = None, # set for alternative transformer embedding model
+                 docs: List[str] = None, # can be set here or when embeddings are created manually
+                 reducer_model = None, # a UMAP instance
                  reducer_random_state = None,
                  reducer_components = 5, 
                  reduced_embeddings = None,
-                 hdbscan_model = None, #: an HDBSCAN instance
+                 hdbscan_model = None, # an HDBSCAN instance
+                 viz_reduction = None, # a 2D reduction of the embeddings used for visualization
                  verbose: int = 0): #: for UMAP
         
       BaseHDBSCANTuner.__init__(self, 
-                   clusterer = hdbscan_model,
-                   target_embeddings = reduced_embeddings, # Set the embeddings to be clustered (reduced)
+                   HDBSCAN_model = hdbscan_model,
+                   target_vectors = reduced_embeddings, # Set the reduced embeddings to be clustered 
                    verbose = verbose)
 
       '''
@@ -256,35 +255,30 @@ class TopicModelTuner(BaseHDBSCANTuner):
       '''
       
       self.embeddings = embeddings 
-      # self.reduced_embeddings = reduced_embeddings
       self.reducer_model = reducer_model # Used to reduce the embeddings (if necessary)
       self.reducer_components = reducer_components
       self.reducer_random_state = reducer_random_state
-      
       self.docs = docs
-
-      self.ResultsDF = None # A running collection of all the parameters and results if a DataFrame
+      self.viz_reduction = viz_reduction
 
       self.viz_reducer = None # A reducer (defaults to UMAP to create a 2D reduction for a
                               # scatter plot visualization of the embeddings
 
-      self.best_cs = None
-      self.best_ss = None
 
-      self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
       
       if embedding_model == None :
-          self.model = SentenceTransformer('all-MiniLM-L6-v2')
+          self.embedding_model = SentenceTransformer('all-MiniLM-L6-v2')
       else :
-          self.model=embedding_model
+          self.embedding_model=embedding_model
     
-      if reducer_model == None : 
+      if reducer_model == None : # Use default BERTopic params 
           self.reducer_model = UMAP(n_components=self.reducer_components, 
-                             metric='cosine', 
-                             n_neighbors=5, 
-                             min_dist=0.0, 
-                             verbose=self.verbose)
+                                    metric='cosine', 
+                                    n_neighbors=5, 
+                                    min_dist=0.0, 
+                                    verbose=self.verbose)
 
+      # Default BERTopic params
       self.hdbscan_params = {'metric': 'euclidean',
                              'cluster_selection_method': 'eom',
                              'prediction_data': True,
@@ -292,7 +286,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
                              }
 
     @staticmethod
-    def wrapBERTopicModel(BERTopicModel : BERTopic, verbose: int = 2 ) :
+    def wrapBERTopicModel(BERTopicModel : BERTopic) :
       '''
       This is a helper function which returns a TMT instance using the values from a BERTopic instance.
       '''
@@ -300,7 +294,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
       return TopicModelTuner(embedding_model=BERTopicModel.embedding_model,
                                reducer_model=BERTopicModel.umap_model,
                                hdbscan_model=BERTopicModel.hdbscan_model,
-                               verbose=verbose)
+                            )
 
     def getBERTopicModel(self, min_cluster_size : int = None, min_samples : int = None):
       '''
@@ -316,24 +310,15 @@ class TopicModelTuner(BaseHDBSCANTuner):
       the desired results in the new BERTopic model we need to use the same random seed for the BERTopic's UMAP
       as was used in the TMT model.
       '''
-        
+      
+      min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples)
+
       hdbscan_params = copy(self.hdbscan_params)
-      if (min_samples != None) & (min_cluster_size == None) :
-        raise ValueError('Must set min_cluster_size if setting min_samples')
-      if (min_samples > min_cluster_size) :
-        raise ValueError('min_samples must be equal or less than min_cluster_size')
-
-      if min_cluster_size == None :
-        if self.best_cs != None :
-          hdbscan_params['min_cluster_size'] = self.best_cs 
-
-      if min_samples == None :
-          if self.best_ss != None :
-            hdbscan_params['min_samples'] = self.best_ss
+      hdbscan_params['min_cluster_size'] = min_cluster_size
+      hdbscan_params['min_samples'] = min_samples
         
       hdbscan_model = HDBSCAN(**hdbscan_params)
 
-      # Check this - what happens when we just set the target_embeddings??
       return BERTopic(umap_model=deepcopy(self.reducer_model),
                       hdbscan_model=hdbscan_model)
 
@@ -351,19 +336,15 @@ class TopicModelTuner(BaseHDBSCANTuner):
         
       self.docs=docs
              
-      self.embeddings = self.model.encode(self.docs)
+      self.embeddings = self.embedding_model.encode(self.docs)
     
         
     def reduce(self) :
         '''
         Reduce dimensionality of the embeddings
         '''
-        try :
-          # if self.embeddings == None :
-          if not np.any(self.embeddings) :
-            raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings directly')
-        except ValueError as e :
-            pass # embeddings not set
+        if not np.any(self.embeddings) :
+          raise AttributeError('No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings=')
         
         if self.reducer_model.random_state != None :  
           self.reducer_random_state = self.reducer_model.random_state # The reducer has already set a random_state
@@ -376,18 +357,14 @@ class TopicModelTuner(BaseHDBSCANTuner):
               self.reducer_random_state = self.reducer_model.random_state # sync TMT random state
         
         self.reducer_model.fit(self.embeddings)    
-        self.target_embeddings = self.reducer_model.embedding_ 
+        self.target_vectors = self.reducer_model.embedding_ 
     
     def createVizReduction(self, method='UMAP') :
       '''
       Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
       '''
-      try :
-        # if self.embeddings == None :
-        if not np.any(self.embeddings) :
-          raise AttributeError('No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
-      except ValueError as e :
-          pass # embeddings not set
+      if not np.any(self.embeddings) :
+        raise AttributeError('No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
 
       if method == 'UMAP' :
         self.viz_reducer = copy(self.reducer_model)

@@ -5,3 +5,4 @@ test/embeddings
 .project
 .pydevproject
 *.ipynb
+Test_Results.txt
