@@ -14,10 +14,13 @@ import plotly.express as px
 from random import randrange
 from sklearn.manifold import TSNE
 
+paramPair = namedtuple('paramPair', 'cs ss')
+
 class BaseHDBSCANTuner(object):
     def __init__(self,
                  HDBSCAN_model = None, #: an HDBSCAN instance
                  target_vectors = None, # vectors to be clustered
+                 viz_reduction = None, # 2D reduction of the target_vectors
                  verbose: int = 0): 
         
         self.hdbscan_model = HDBSCAN_model
@@ -25,29 +28,43 @@ class BaseHDBSCANTuner(object):
         self.verbose = verbose
         self.hdbscan_params = {}
         self.ResultsDF = None # A running collection of all the parameters and results if a DataFrame
+        self.viz_reduction = viz_reduction, # a 2D reduction of the embeddings used for visualization
+
         
-        self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
-        self.bestParams = self._paramPair(None, None)
+        # self._paramPair = namedtuple('paramPair', 'cs ss') # Used internally to enhance readability
+        self._paramPair = paramPair        
+        self.__bestParams = self._paramPair(None, None)
     
     def _check_CS_SS(self, min_cluster_size: int, min_samples: int):
 
-      if (min_cluster_size == None) & (min_samples != None)  :
-        raise ValueError('Must set min_cluster_size, can not be None unless min_samples is None')
+      if min_cluster_size == None :
+          raise ValueError('Cannot set min_cluster_size==None')
+      if min_cluster_size == 1 :
+          raise ValueError('min_cluster_size must be more than 1')
       if (min_samples > min_cluster_size) :
         raise ValueError('min_samples must be equal or less than min_cluster_size')
 
-      if self.best_cs == None & self.best_ss == None :
-          raise ValueError('min_cluster_size and min_samples must be set (no default (best) values set for this model)')
+      # if (self.bestParams.cs == None) & (self.bestParams.ss == None) :
+      #     raise ValueError('min_cluster_size and min_samples must be set (no default (best) values set for this model)')
 
-      if min_cluster_size == None : 
-        min_cluster_size = self.bestParams.cs # go ahead and set - bestParams is either None or a better value
-        min_samples = self.bestParams.ss # go ahead and set - if min_cluster_size was None then this has to be None or a better value
+      # if min_cluster_size == None : 
+      #   min_cluster_size = self.bestParams.cs # go ahead and set - bestParams is either None or a better value
+      #   min_samples = self.bestParams.ss # go ahead and set - if min_cluster_size was None then this has to be None or a better value
 
       return min_cluster_size, min_samples
 
+    @property
+    def bestParams(self):
+        return self.__bestParams
+
+    # @bestParams.setter
+    # def bestParams(self, min_cluster_size: int, sample_size: int=None):
+    #    self.__bestParams.cs, self.__bestParams.ss = self._check_CS_SS(min_cluster_size, sample_size)
+
     @bestParams.setter
-    def bestParams(self, min_cluster_size: int, sample_size: int=None):
-       self.bestParams.cs, self.bestParams.ss = self._check_CS_SS(min_cluster_size, sample_size)
+    def bestParams(self, params):
+        cs, ss = self._check_CS_SS(params[0], params[1])
+        self.__bestParams = self._paramPair(cs,ss)
             
     def runHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None) :
       '''
@@ -116,12 +133,15 @@ class BaseHDBSCANTuner(object):
           for ss_val in [*range(1,cs_val+1)] :
             cs_list.append(cs_val)
             ss_list.append(ss_val)
-      self.simpleSearch(cs_list, ss_list) 
+      return self.simpleSearch(cs_list, ss_list) 
                    
-    def visualizeSearch(self, resultsDF: pd.DataFrame) :
+    def visualizeSearch(self, resultsDF: pd.DataFrame = None) :
       '''
       Returns a plotly fig of a parrallel coordinates graph of the searches performed on this instance. 
       '''
+        
+      if not np.any(resultsDF) :
+          resultsDF = self.ResultsDF
 
       return px.parallel_coordinates(resultsDF,
                                     color="number_uncategorized", 
@@ -137,17 +157,82 @@ class BaseHDBSCANTuner(object):
       uncategorized documents. By default runs against self.ResultsDF - the aggregation of all
       searches run for this model.
       '''
-      try : # no good way to test. If summaryDF has been set then ==None will error 
-        if summaryDF == None :
+
+      if not np.any(summaryDF) :
           summaryDF = self.ResultsDF
-      except :
-        pass # summaryDF has been set - so no problem
+
+      if not np.any(summaryDF) :
+          raise ValueError("No searches run on this TMT instance, or DF to summarize is None")
         
       resultSummaryDF = pd.DataFrame()
       for num_clusters in set(summaryDF['number_of_clusters'].unique()) :
         resultSummaryDF = pd.concat([resultSummaryDF, summaryDF[summaryDF['number_of_clusters']==num_clusters].sort_values(by='number_uncategorized').iloc[[0]]])
       resultSummaryDF.reset_index(inplace=True, drop=True)
       return resultSummaryDF.sort_values(by=['number_of_clusters'])
+  
+    def clearSearches(self):
+        """
+        A convenience function that resets the saved searches
+        """
+        self.ResultsDF = None
+        
+    def createVizReduction(self, method='UMAP') :
+      '''
+      Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
+      '''
+      if not np.all(self.embeddings) :
+        raise AttributeError('No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
+
+      if method == 'UMAP' :
+        self.viz_reducer = copy(self.reducer_model)
+        self.viz_reducer.n_components = 2
+        self.viz_reducer.fit(self.embeddings)
+      else : # Only TSNE is supported
+        self.viz_reducer = TSNE(n_components=2, verbose=self.verbose, random_state=self.random_state)
+        self.viz_reducer.fit(self.embeddings)
+
+      self.viz_reduction = self.viz_reducer.embedding_
+
+
+    def getVizCoords(self) :
+      '''
+      Returns the X,Y coordinates for use in plotting a visualization of the embeddings.
+      '''
+      if self.viz_reducer == None :
+          raise AttributeError('Visualization reduction not performed, call createVizReduction first')
+ 
+      return self.viz_reducer.embedding_[:,0], self.viz_reducer.embedding_[:,1]
+
+      
+    def visualizeEmbeddings(self, min_cluster_size: int = None, min_samples: int = None) :
+      '''
+      Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
+      If TMT.docs has been set then the first 400 chars of each document will be shown as a 
+      hover over each data point.
+  
+      Returns a plotly fig object
+      '''  
+      
+      topics = self.runHDBSCAN(min_cluster_size, min_samples)
+
+      VizDF = pd.DataFrame()
+      VizDF['x'], VizDF['y'] = self.getVizCoords()
+
+      if self.docs != None :
+          wrappedtext = ['<br>'.join(wrap(txt[:400], width=60)) for txt in self.docs]
+          VizDF['text'] = wrappedtext
+          hover_data = {'text': True}
+      else :
+          hover_data = None
+          
+      fig = px.scatter(VizDF,
+               x='x',
+               y='y',
+               hover_data = hover_data,
+               color=[str(top) for top in topics])
+
+      return fig    
+        
   
     def _genRandomSearchParams(self, cluster_size_range, min_samples_pct_range, iters=20) :
         searchParams = []
@@ -224,12 +309,13 @@ class TopicModelTuner(BaseHDBSCANTuner):
                  reducer_components = 5, 
                  reduced_embeddings = None,
                  hdbscan_model = None, # an HDBSCAN instance
-                 viz_reduction = None, # a 2D reduction of the embeddings used for visualization
+                 viz_reduction = None,
                  verbose: int = 0): #: for UMAP
         
       BaseHDBSCANTuner.__init__(self, 
                    HDBSCAN_model = hdbscan_model,
                    target_vectors = reduced_embeddings, # Set the reduced embeddings to be clustered 
+                   viz_reduction = viz_reduction,
                    verbose = verbose)
 
       '''
@@ -259,7 +345,6 @@ class TopicModelTuner(BaseHDBSCANTuner):
       self.reducer_components = reducer_components
       self.reducer_random_state = reducer_random_state
       self.docs = docs
-      self.viz_reduction = viz_reduction
 
       self.viz_reducer = None # A reducer (defaults to UMAP to create a 2D reduction for a
                               # scatter plot visualization of the embeddings
@@ -363,7 +448,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
       '''
       Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
       '''
-      if not np.any(self.embeddings) :
+      if not np.all(self.embeddings) :
         raise AttributeError('No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()')
 
       if method == 'UMAP' :
@@ -371,8 +456,10 @@ class TopicModelTuner(BaseHDBSCANTuner):
         self.viz_reducer.n_components = 2
         self.viz_reducer.fit(self.embeddings)
       else : # Only TSNE is supported
-        self.viz_reducer = TSNE(n_components=2, verbose=self.verbose, random_state=self.random_state)
+        self.viz_reducer = TSNE(n_components=2, verbose=self.verbose, random_state=self.reducer_random_state)
         self.viz_reducer.fit(self.embeddings)
+        
+      self.viz_reduction = self.viz_reducer.embedding_
 
     def getVizCoords(self) :
       '''
