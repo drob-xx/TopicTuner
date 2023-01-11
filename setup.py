@@ -29,7 +29,7 @@ setuptools.setup(
      license_files=["LICENSE"],                               # License file
      classifiers=[
          "Programming Language :: Python :: 3",
-         "License :: GNU GPL",
+         "License :: OSI Approved :: GNU General Public License v3 (GPLv3)",
          "Operating System :: OS Independent",
      ],
  )
