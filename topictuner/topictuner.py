@@ -85,7 +85,7 @@ class BaseHDBSCANTuner(object):
             hdbscan_model = copy(self.hdbscan_model)
             hdbscan_model.min_cluster_size = min_cluster_size
             hdbscan_model.min_samples = min_samples
-        return hdbscan_model
+        return deepcopy(hdbscan_model)
 
     def runHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None):
         """
@@ -93,7 +93,9 @@ class BaseHDBSCANTuner(object):
         run as a TMT instance. Per HDBSCAN, min_samples must be more than 0 and less than
         or equal to min_cluster_size.
         """
-        self.getHDBSCAN(min_cluster_size, min_samples).fit_predict(self.target_vectors)
+        hdbscan_model = self.getHDBSCAN(min_cluster_size, min_samples)
+        hdbscan_model.fit_predict(self.target_vectors)
+        return hdbscan_model.labels_
 
     def randomSearch(
         self,
@@ -115,6 +117,15 @@ class BaseHDBSCANTuner(object):
         All of the search results will be added to TMT.ResultsDF and a separate DataFrame containing
         just the results from just this search will be returned by this method.
         """
+        
+        if len(cluster_size_range) == 0 or len(min_samples_pct_range) == 0 :
+            raise ValueError('cluster_size_range and min_samples_pct_range cannot be empty')
+        if [0, 1] in cluster_size_range:
+            raise ValueError("min_cluster_size must be more than 1")
+        for x in min_samples_pct_range:
+            if x > 1 :
+                raise ValueError('min_samples calculated as percent of cluster_size, must be less than or equal to 1')
+
         searchParams = self._genRandomSearchParams(
             cluster_size_range, min_samples_pct_range, iters
         )
@@ -128,9 +139,42 @@ class BaseHDBSCANTuner(object):
         each percentage value in min_samples for each value in cluster_sizes would be run
         for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of those for 10%, 20%, 30%,...100%).
         """
+        
+        if len(cluster_sizes) == 0 or len(min_samples) == 0 :
+            raise ValueError('cluster sizes and min_samples cannot be empty')
+        
+        if [0, 1] in cluster_sizes:
+            raise ValueError(
+                "min_cluster_size must be more than 1"
+            )
+        for x in min_samples:
+            if x > 1 :
+                raise ValueError(
+                    "min_samples calculated as percent of cluster_size, must be less than or equal to 1"
+            )
+
         searchParams = self._genGridSearchParams(cluster_sizes, min_samples)
         return self._runTests(searchParams)
 
+    def gridSearch(self, searchRange: List[int]):
+        """
+        For any n (int) in searchRange, generates all possible min_samples values (1 to n) and performs
+        the search.
+        """
+        if [0,1] in searchRange:
+            raise ValueError('Cluster sizes must be > 1')
+        if len(searchRange) == 0  :
+            raise ValueError('Search range cannot be empty')
+        if [0, 1] in searchRange:
+            ValueError("min_cluster_size must be more than 1")
+
+        cs_list, ss_list = [], []
+        for cs_val in searchRange:
+            for ss_val in [*range(1, cs_val + 1)]:
+                cs_list.append(cs_val)
+                ss_list.append(ss_val)
+        return self.simpleSearch(cs_list, ss_list)    
+    
     def simpleSearch(self, cluster_sizes: List[int], min_samples: List[int]):
         """
         A clustering for each value in cluster_sizes will be run using the corresponding min_samples
@@ -139,30 +183,25 @@ class BaseHDBSCANTuner(object):
         The len of each list must be the same. Each cluster_size must be > 0 and min_samples must
         be >0 and <= cluster_size.
         """
+        if len(cluster_sizes) == 0 or len(min_samples) == 0 :
+            raise ValueError('cluster sizes and min_samples cannot be empty')
+        
         if len(cluster_sizes) != len(min_samples):
             raise ValueError(
                 "Length of cluster sizes and samples sizes lists must match"
             )
-        for x in len(cluster_sizes):
-            if (not cluster_sizes[x] > 1) or (min_samples[x] <= cluster_sizes[x]):
-                raise ValueError("min_cluster_size must be more than one and min_samples less than or equal to cluster size.") 
+        
+        if [0,1] in cluster_sizes:
+            raise ValueError('Cluster sizes must be > 1')
+        
+        for x in range(len(cluster_sizes)):
+            if (not cluster_sizes[x] > 1) or (min_samples[x] > cluster_sizes[x]):
+                raise ValueError(
+                    "min_cluster_size must be more than one and min_samples less than or equal to cluster size."
+                ) 
         return self._runTests(
             [self._paramPair(cs, ss) for cs, ss in zip(cluster_sizes, min_samples)]
         )
-
-    def gridSearch(self, searchRange: List[int]):
-        """
-        For any n (int) in searchRange, generates all possible min_samples values (1 to n) and performs
-        the search.
-        """
-        if [0, 1] in searchRange:
-            ValueError("min_cluster_size must be more than 1")
-        cs_list, ss_list = [], []
-        for cs_val in searchRange:
-            for ss_val in [*range(1, cs_val + 1)]:
-                cs_list.append(cs_val)
-                ss_list.append(ss_val)
-        return self.simpleSearch(cs_list, ss_list)
 
     def visualizeSearch(self, resultsDF: pd.DataFrame = None):
         """
@@ -589,7 +628,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         docs = self.docs
         embeddings = self.embeddings
         viz_reduction = self.viz_reducer
-        self._paramPair = None
+        # self._paramPair = None
         with open(fname, "wb") as file:
             if not save_docs:
                 self.docs = None
@@ -601,7 +640,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         self.docs = docs
         self.embeddings = embeddings
         self.viz_reduction = viz_reduction
-        self._paramPair = namedtuple("paramPair", "cs ss")
+        # self._paramPair = namedtuple("paramPair", "cs ss")
 
     @staticmethod
     def load(fname):
@@ -611,5 +650,5 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         with open(fname, "rb") as file:
             restored = joblib.load(file)
-            restored._paramPair = namedtuple("paramPair", "cs ss")
+            # restored._paramPair = namedtuple("paramPair", "cs ss")
             return restored

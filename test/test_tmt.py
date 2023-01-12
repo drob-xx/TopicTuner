@@ -15,10 +15,10 @@ from sklearn.datasets import fetch_20newsgroups
 from loguru import logger
 import sys
 import numpy as np
-from bertopic import BERTopic
+import pandas as pd
 
 logger.remove(0)
-logger.add(sys.stderr, format = "{level} Message : {message} @ {time}", colorize=True)
+logger.add(sys.stderr, format = "{time} : {level} : {message} ")
 logger.add('test_results.txt')
 
 @pytest.fixture(scope="module")
@@ -35,26 +35,67 @@ def tmt_instance(documents):
     tmt.createEmbeddings(documents)
     logger.info('Reducing')
     tmt.reduce()
+    tmt.createVizReduction()
     return tmt
-
-
 
 def test_randomSearch(tmt_instance):
 
     logger.info('Running randomSearch')
     tmt_instance.clearSearches()
+    with pytest.raises(ValueError) as e :
+        tmt_instance.randomSearch([1], [.1, .25])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.randomSearch([0], [.1, .25])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.randomSearch([2], [.1, 1.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.randomSearch([], [.1, .25])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.randomSearch([2, 3], [])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.randomSearch([], [])
     search_resultsDF = tmt_instance.randomSearch([*range(5,51)], [.1, .25, .5, .75, 1])
     assert(search_resultsDF.shape[0] == 20)
+    logger.info('Completed randomSearch')
     
 def test_psuedoGridSearch(tmt_instance):
     logger.info('Running psuedoGridSearch')
     tmt_instance.clearSearches()
+    with pytest.raises(ValueError) as e :
+        tmt_instance.psuedoGridSearch([1], [.1, .25])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.psuedoGridSearch([0], [.1, .25])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.psuedoGridSearch([2], [.1, 1.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.psuedoGridSearch([], [.1, .25])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.psuedoGridSearch([3, 5], [])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.psuedoGridSearch([], [])
     search_resultsDF = tmt_instance.psuedoGridSearch([*range(2,11)], [.1, .25, .5, .75, 1])
     assert(search_resultsDF.shape[0] == 45)
     
 def test_simpleSearch(tmt_instance):
     logger.info('Running simpleSearch')
     tmt_instance.clearSearches()
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([1], [.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([0], [.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([2], [.1, 1.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([2, 2], [.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([2, 2], [.1, 1.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([], [.1, 1.1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([2, 3], [])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.simpleSearch([], [])
+
     csizes = []
     ssizes = []
     for csize in range(2,11) :
@@ -67,6 +108,12 @@ def test_simpleSearch(tmt_instance):
 def test_gridSearch(tmt_instance):
     logger.info('Running gridSearch')
     tmt_instance.clearSearches()
+    with pytest.raises(ValueError) as e :
+        tmt_instance.gridSearch([0])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.gridSearch([1])
+    with pytest.raises(ValueError) as e :
+        tmt_instance.gridSearch([])
     search_resultsDF = tmt_instance.gridSearch([*range(2,11)])
     assert(search_resultsDF.shape[0] == 54)
       
@@ -104,15 +151,27 @@ def test_visualizeEmbeddings(tmt_instance):
 def test_get_wrap_BERTopicModel(tmt_instance):
     logger.info('Running get_wrap_BERTopicModel')
     btModel = tmt_instance.getBERTopicModel(6, 1)
+    hdbscan_model = tmt_instance.getHDBSCAN(6, 1)
+    hdbscan_model.fit_predict(tmt_instance.target_vectors)
+    tmtLabels = hdbscan_model.labels_
+    # btModel.fit_transform(documents)
+    documents = fetch_20newsgroups(subset='all',  remove=('headers', 'footers', 'quotes'))['data'][:200]
+    btModel.fit_transform(documents)
+
+    assert(len(btModel.topics_) == len(tmtLabels))
+    assert(pd.Series(tmtLabels).value_counts()[-1] == pd.Series(btModel.topics_).value_counts()[-1])
+    newDocs = ["doc one", "doc two", "doc three"]
+    preds = btModel.transform(newDocs)
+    assert(len(preds[1]) == 3)
     tmtModel = TMT.wrapBERTopicModel(btModel)
-    assert(str(type(tmtModel)) == "<class 'topictuner.TopicModelTuner'>")
+    assert(str(type(tmtModel)) == "<class 'topictuner.topictuner.TopicModelTuner'>")
     assert(str(type(btModel)) == "<class 'bertopic._bertopic.BERTopic'>")
 
 def test_save_load(tmt_instance):
     logger.info('Running save_load')
     tmt_instance.save('tmt_instance')
     tmtModel = TMT.load('tmt_instance')
-    assert(str(type(tmtModel)) == "<class 'topictuner.TopicModelTuner'>")
+    assert(str(type(tmtModel)) == "<class 'topictuner.topictuner.TopicModelTuner'>")
     
     
     
