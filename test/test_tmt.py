@@ -38,21 +38,48 @@ def tmt_instance(documents):
     tmt.createVizReduction()
     return tmt
 
+def test_bestParams(tmt_instance):
+        with pytest.raises(ValueError) : # error no vals set, no bestParams
+            new_instance = TMT()
+            new_instance._check_CS_SS(None, None, True)
+        tmt_instance.bestParams = (22, 3)
+        cs, ss = tmt_instance._check_CS_SS(None, None, True)
+        assert(cs == 22)
+        assert(ss == 3)
+        tmt_instance.bestParams = tmt_instance._paramPair(22, 3)
+        cs, ss = tmt_instance._check_CS_SS(None, None, True)
+        assert(cs == 22)
+        assert(ss == 3)
+        with pytest.raises(ValueError) :
+            tmt_instance.bestParams = ('foo')
+        with pytest.raises(ValueError) :
+            tmt_instance.bestParams = (3)
+        tmt_instance.bestParams = (4,3)
+        assert(tmt_instance.bestParams[0] == 4)
+        assert(tmt_instance.bestParams[1] == 3)
+        assert(tmt_instance.bestParams.cs == 4)
+        assert(tmt_instance.bestParams.ss == 3)
+        tmt_instance.bestParams = tmt_instance._paramPair(4,3)
+        assert(tmt_instance.bestParams[0] == 4)
+        assert(tmt_instance.bestParams[1] == 3)
+        assert(tmt_instance.bestParams.cs == 4)
+        assert(tmt_instance.bestParams.ss == 3)
+
 def test_randomSearch(tmt_instance):
 
     logger.info('Running randomSearch')
     tmt_instance.clearSearches()
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.randomSearch([1], [.1, .25])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.randomSearch([0], [.1, .25])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.randomSearch([2], [.1, 1.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.randomSearch([], [.1, .25])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.randomSearch([2, 3], [])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.randomSearch([], [])
     search_resultsDF = tmt_instance.randomSearch([*range(5,51)], [.1, .25, .5, .75, 1])
     assert(search_resultsDF.shape[0] == 20)
@@ -61,17 +88,17 @@ def test_randomSearch(tmt_instance):
 def test_psuedoGridSearch(tmt_instance):
     logger.info('Running psuedoGridSearch')
     tmt_instance.clearSearches()
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.psuedoGridSearch([1], [.1, .25])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.psuedoGridSearch([0], [.1, .25])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.psuedoGridSearch([2], [.1, 1.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.psuedoGridSearch([], [.1, .25])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.psuedoGridSearch([3, 5], [])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.psuedoGridSearch([], [])
     search_resultsDF = tmt_instance.psuedoGridSearch([*range(2,11)], [.1, .25, .5, .75, 1])
     assert(search_resultsDF.shape[0] == 45)
@@ -79,21 +106,21 @@ def test_psuedoGridSearch(tmt_instance):
 def test_simpleSearch(tmt_instance):
     logger.info('Running simpleSearch')
     tmt_instance.clearSearches()
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([1], [.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([0], [.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([2], [.1, 1.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([2, 2], [.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([2, 2], [.1, 1.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([], [.1, 1.1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([2, 3], [])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.simpleSearch([], [])
 
     csizes = []
@@ -108,11 +135,11 @@ def test_simpleSearch(tmt_instance):
 def test_gridSearch(tmt_instance):
     logger.info('Running gridSearch')
     tmt_instance.clearSearches()
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.gridSearch([0])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.gridSearch([1])
-    with pytest.raises(ValueError) as e :
+    with pytest.raises(ValueError):
         tmt_instance.gridSearch([])
     search_resultsDF = tmt_instance.gridSearch([*range(2,11)])
     assert(search_resultsDF.shape[0] == 54)
@@ -145,11 +172,18 @@ def test_createVizReduction(tmt_instance):
     
 def test_visualizeEmbeddings(tmt_instance):
     logger.info('Running visualizeEmbeddings')
+    tmt_instance.bestParams = tmt_instance._paramPair(22, 3)
+    fig = tmt_instance.visualizeEmbeddings()
+    del(fig)
     fig = tmt_instance.visualizeEmbeddings(6,1)
     del(fig)
 
 def test_get_wrap_BERTopicModel(tmt_instance):
     logger.info('Running get_wrap_BERTopicModel')
+    tmt_instance.bestParams = tmt_instance._paramPair(22, 3)
+    btModel = tmt_instance.getBERTopicModel()
+    assert(btModel.hdbscan_model.min_cluster_size == 22)
+    assert(btModel.hdbscan_model.min_samples == 3)
     btModel = tmt_instance.getBERTopicModel(6, 1)
     hdbscan_model = tmt_instance.getHDBSCAN(6, 1)
     hdbscan_model.fit_predict(tmt_instance.target_vectors)

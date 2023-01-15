@@ -28,12 +28,12 @@ class BaseHDBSCANTuner(object):
     """
     def __init__(
         self,
-        HDBSCAN_model=None,  #: an HDBSCAN instance
+        hdbscan_model=None,  #: an HDBSCAN instance
         target_vectors=None,  # vectors to be clustered
         viz_reduction=None,  # 2D reduction of the target_vectors
         verbose: int = 0,
     ):
-        self.hdbscan_model = HDBSCAN_model
+        self.hdbscan_model = hdbscan_model
         self.target_vectors = target_vectors 
         self.verbose = verbose
         self.hdbscan_params = {}
@@ -41,15 +41,19 @@ class BaseHDBSCANTuner(object):
         self.viz_reduction = viz_reduction
         
         self._paramPair = paramPair # a type 
-        self.__bestParams = self._paramPair(None, None)
+        self.__bestParams = paramPair(None, None)
 
-    def _check_CS_SS(self, min_cluster_size: int, min_samples: int):
-        if min_cluster_size == None:
-            raise ValueError("Cannot set min_cluster_size==None")
+    def _check_CS_SS(self, min_cluster_size: int, min_samples: int, useBestParams: bool = False):
+        if min_cluster_size == None :
+            if useBestParams and ( self.__bestParams.cs != None) :
+                min_cluster_size = self.__bestParams.cs 
+                min_samples = self.__bestParams.ss
+            else :
+                raise ValueError("Cannot set min_cluster_size==None")
         if min_cluster_size == 1:
             raise ValueError("min_cluster_size must be more than 1")
         if min_samples > min_cluster_size:
-            raise ValueError("min_samples must be equal or less than min_cluster_size")
+            raise ValueError("min_samples must be equal or less than min_cluster_size")                
 
         return min_cluster_size, min_samples
 
@@ -64,8 +68,10 @@ class BaseHDBSCANTuner(object):
 
     @bestParams.setter
     def bestParams(self, params):
-        cs, ss = self._check_CS_SS(params[0], params[1])
-        self.__bestParams = self._paramPair(cs, ss)
+        if not ((type(params) == tuple) or (type(params) == paramPair)) :
+            raise ValueError("bestParams must be a tuple or parampair")
+        self._check_CS_SS(params[0], params[1])
+        self.__bestParams = paramPair(params[0], params[1])
 
     def getHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None):
         """
@@ -74,7 +80,7 @@ class BaseHDBSCANTuner(object):
         min_cluster_size and min_samples)
         """
         
-        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples)
+        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
 
         if self.hdbscan_model == None:
             hdbscan_params = copy(self.hdbscan_params)
@@ -93,6 +99,7 @@ class BaseHDBSCANTuner(object):
         run as a TMT instance. Per HDBSCAN, min_samples must be more than 0 and less than
         or equal to min_cluster_size.
         """
+        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
         hdbscan_model = self.getHDBSCAN(min_cluster_size, min_samples)
         hdbscan_model.fit_predict(self.target_vectors)
         return hdbscan_model.labels_
@@ -293,7 +300,7 @@ class BaseHDBSCANTuner(object):
 
         Returns a plotly fig object
         """
-
+        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
         topics = self.runHDBSCAN(min_cluster_size, min_samples)
 
         VizDF = pd.DataFrame()
@@ -410,11 +417,11 @@ class TopicModelTuner(BaseHDBSCANTuner):
         reduced_embeddings=None,
         hdbscan_model=None,  # an HDBSCAN instance
         viz_reduction=None,
-        verbose: int = 0,
-    ):  #: for UMAP
+        verbose: int = 0, 
+    ):  
         BaseHDBSCANTuner.__init__(
             self,
-            HDBSCAN_model=hdbscan_model,
+            hdbscan_model=hdbscan_model,
             target_vectors=reduced_embeddings,  # Set the reduced embeddings to be clustered
             viz_reduction=viz_reduction,
             verbose=verbose,
@@ -501,7 +508,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         as was used in the TMT model.
         """
 
-        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples)
+        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
 
         hdbscan_params = copy(self.hdbscan_params)
         hdbscan_params["min_cluster_size"] = min_cluster_size
@@ -597,7 +604,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         Returns a plotly fig object
         """
-
+        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
         topics = self.runHDBSCAN(min_cluster_size, min_samples)
 
         VizDF = pd.DataFrame()
@@ -628,7 +635,6 @@ class TopicModelTuner(BaseHDBSCANTuner):
         docs = self.docs
         embeddings = self.embeddings
         viz_reduction = self.viz_reducer
-        # self._paramPair = None
         with open(fname, "wb") as file:
             if not save_docs:
                 self.docs = None
@@ -640,7 +646,6 @@ class TopicModelTuner(BaseHDBSCANTuner):
         self.docs = docs
         self.embeddings = embeddings
         self.viz_reduction = viz_reduction
-        # self._paramPair = namedtuple("paramPair", "cs ss")
 
     @staticmethod
     def load(fname):
