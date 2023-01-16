@@ -138,7 +138,7 @@ class BaseHDBSCANTuner(object):
         )
         return self._runTests(searchParams)
 
-    def psuedoGridSearch(self, cluster_sizes: List[int], min_samples: List[float]):
+    def pseudoGridSearch(self, cluster_sizes: List[int], min_samples: List[float]):
         """
         Note that this is not a really a grid search. It will search for all cluster_sizes, but only
         search for the percent values of those cluster sizes. For example if cluster_sizes were
