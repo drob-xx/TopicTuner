@@ -83,12 +83,12 @@ class BaseHDBSCANTuner(object):
         min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
 
         if self.hdbscan_model == None:
-            hdbscan_params = copy(self.hdbscan_params)
+            hdbscan_params = deepcopy(self.hdbscan_params)
             hdbscan_params["min_cluster_size"] = min_cluster_size
             hdbscan_params["min_samples"] = min_samples
             hdbscan_model = HDBSCAN(**hdbscan_params)
         else:
-            hdbscan_model = copy(self.hdbscan_model)
+            hdbscan_model = deepcopy(self.hdbscan_model)
             hdbscan_model.min_cluster_size = min_cluster_size
             hdbscan_model.min_samples = min_samples
         return deepcopy(hdbscan_model)
@@ -270,7 +270,7 @@ class BaseHDBSCANTuner(object):
                 "No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()"
             )
         if method == "UMAP":
-            self.viz_reducer = copy(self.reducer_model)
+            self.viz_reducer = deepcopy(self.reducer_model)
             self.viz_reducer.n_components = 2
             self.viz_reducer.fit(self.embeddings)
         else:  # Only TSNE is supported
@@ -572,7 +572,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
                 "No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()"
             )
         if method == "UMAP":
-            self.viz_reducer = copy(self.reducer_model)
+            self.viz_reducer = deepcopy(self.reducer_model)
             self.viz_reducer.n_components = 2
             self.viz_reducer.fit(self.embeddings)
         else:  # Only TSNE is supported
