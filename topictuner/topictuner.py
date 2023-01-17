@@ -510,7 +510,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
 
-        hdbscan_params = copy(self.hdbscan_params)
+        hdbscan_params = deepcopy(self.hdbscan_params)
         hdbscan_params["min_cluster_size"] = min_cluster_size
         hdbscan_params["min_samples"] = min_samples
 

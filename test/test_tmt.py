@@ -106,18 +106,17 @@ def test_psuedoGridSearch(tmt_instance):
 def test_simpleSearch(tmt_instance):
     logger.info('Running simpleSearch')
     tmt_instance.clearSearches()
+    tmt_instance.simpleSearch([2, 3], [1, 2])
     with pytest.raises(ValueError):
-        tmt_instance.simpleSearch([1], [.1])
+        tmt_instance.simpleSearch([1], [1])
     with pytest.raises(ValueError):
-        tmt_instance.simpleSearch([0], [.1])
+        tmt_instance.simpleSearch([0], [1])
     with pytest.raises(ValueError):
-        tmt_instance.simpleSearch([2], [.1, 1.1])
+        tmt_instance.simpleSearch([2], [1, 2])
     with pytest.raises(ValueError):
-        tmt_instance.simpleSearch([2, 2], [.1])
+        tmt_instance.simpleSearch([2, 2], [1])
     with pytest.raises(ValueError):
-        tmt_instance.simpleSearch([2, 2], [.1, 1.1])
-    with pytest.raises(ValueError):
-        tmt_instance.simpleSearch([], [.1, 1.1])
+        tmt_instance.simpleSearch([], [1, 1])
     with pytest.raises(ValueError):
         tmt_instance.simpleSearch([2, 3], [])
     with pytest.raises(ValueError):
