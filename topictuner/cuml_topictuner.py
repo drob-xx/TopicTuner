@@ -4,6 +4,7 @@ from topictuner.topictuner import TopicModelTuner
 import numpy as np
 from typing import List
 from copy import deepcopy
+from bertopic import BERTopic
 
 
 class cumlTopicModelTuner(TopicModelTuner):
