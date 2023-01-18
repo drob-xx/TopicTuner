@@ -86,21 +86,21 @@ def test_randomSearch(tmt_instance):
     logger.info('Completed randomSearch')
     
 def test_psuedoGridSearch(tmt_instance):
-    logger.info('Running psuedoGridSearch')
+    logger.info('Running pseudoGridSearch')
     tmt_instance.clearSearches()
     with pytest.raises(ValueError):
-        tmt_instance.psuedoGridSearch([1], [.1, .25])
+        tmt_instance.pseudoGridSearch([1], [.1, .25])
     with pytest.raises(ValueError):
-        tmt_instance.psuedoGridSearch([0], [.1, .25])
+        tmt_instance.pseudoGridSearch([0], [.1, .25])
     with pytest.raises(ValueError):
-        tmt_instance.psuedoGridSearch([2], [.1, 1.1])
+        tmt_instance.pseudoGridSearch([2], [.1, 1.1])
     with pytest.raises(ValueError):
-        tmt_instance.psuedoGridSearch([], [.1, .25])
+        tmt_instance.pseudoGridSearch([], [.1, .25])
     with pytest.raises(ValueError):
-        tmt_instance.psuedoGridSearch([3, 5], [])
+        tmt_instance.pseudoGridSearch([3, 5], [])
     with pytest.raises(ValueError):
-        tmt_instance.psuedoGridSearch([], [])
-    search_resultsDF = tmt_instance.psuedoGridSearch([*range(2,11)], [.1, .25, .5, .75, 1])
+        tmt_instance.pseudoGridSearch([], [])
+    search_resultsDF = tmt_instance.pseudoGridSearch([*range(2,11)], [.1, .25, .5, .75, 1])
     assert(search_resultsDF.shape[0] == 45)
     
 def test_simpleSearch(tmt_instance):
