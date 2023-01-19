@@ -65,6 +65,15 @@ def test_bestParams(tmt_instance):
         assert(tmt_instance.bestParams.cs == 4)
         assert(tmt_instance.bestParams.ss == 3)
 
+def test_create_embeddings():
+    tmt = TMT()
+    with pytest.raises(AttributeError):
+        tmt.createEmbeddings() # no self.docs no docs
+    assert(tmt.docs == None)
+    tmt.createEmbeddings(fetch_20newsgroups(subset='all',  remove=('headers', 'footers', 'quotes'))['data'][:10])
+    assert(tmt.docs != None)
+    
+
 def test_randomSearch(tmt_instance):
 
     logger.info('Running randomSearch')
@@ -161,9 +170,13 @@ def test_summarizeResults(tmt_instance):
     # will use ResultsDF
     assert(np.all(tmt_instance.summarizeResults()['min_cluster_size'].isin([*range(2,11)])) == True)
     assert(np.all(tmt_instance.summarizeResults(search_resultsDF)['min_cluster_size'].isin([*range(2,11)])) == True)
+
     
-def test_createVizReduction(tmt_instance):
-    logger.info('Running createVizReduction')
+def test_VizReduction(tmt_instance):
+    logger.info('Running test_VizReduction')
+    tmt = TMT()
+    with pytest.raises(AttributeError):
+        tmt.getVizCoords()
     tmt_instance.createVizReduction('UMAP')
     assert(tmt_instance.viz_reduction.shape[0] == 200)
     tmt_instance.createVizReduction('TSNE')

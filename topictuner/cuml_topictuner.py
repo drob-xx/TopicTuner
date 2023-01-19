@@ -3,7 +3,7 @@ from cuml.manifold import UMAP
 from topictuner.topictuner import TopicModelTuner
 import numpy as np
 from typing import List
-from copy import deepcopy
+from copy import copy, deepcopy
 from bertopic import BERTopic
 
 
@@ -11,7 +11,6 @@ class cumlTopicModelTuner(TopicModelTuner):
     '''
     classdocs
     '''
-
 
     def __init__(
         self,
@@ -46,6 +45,7 @@ class cumlTopicModelTuner(TopicModelTuner):
             verbose=verbose,
             reducer_model=umap_model,
             hdbscan_model=hdbscan_model,
+            reducer_components=reducer_components
         )
         
     def getBERTopicModel(self, min_cluster_size: int = None, min_samples: int = None):
@@ -65,12 +65,14 @@ class cumlTopicModelTuner(TopicModelTuner):
 
         min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
 
-        hdbscan_params = deepcopy(self.hdbscan_params)
+        hdbscan_params = copy(self.hdbscan_params)
         hdbscan_params["min_cluster_size"] = min_cluster_size
         hdbscan_params["min_samples"] = min_samples
 
         hdbscan_model = HDBSCAN(**hdbscan_params)
 
         return BERTopic(
-            umap_model=deepcopy(self.reducer_model), hdbscan_model=hdbscan_model
+            umap_model=deepcopy(self.reducer_model),
+            hdbscan_model=hdbscan_model,
+            embedding_model=self.embedding_model,  
         )

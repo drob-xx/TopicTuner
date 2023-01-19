@@ -1,6 +1,10 @@
+from loguru import logger
 from topictuner.topictuner import TopicModelTuner
-from topictuner.cuml_topictuner import cumlTopicModelTuner
+try:
+    from topictuner.cuml_topictuner import cumlTopicModelTuner
+except ImportError:
+    logger.info('cuML not present - cumlTopicModelTuner not avaialable')
 
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 
 __all__ = ['TopicModelTuner']

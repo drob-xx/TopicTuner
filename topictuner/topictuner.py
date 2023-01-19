@@ -14,7 +14,7 @@ from sentence_transformers import SentenceTransformer
 from sklearn.manifold import TSNE
 from tqdm.notebook import tqdm
 from umap import UMAP
-
+from loguru import logger
 
 paramPair = namedtuple("paramPair", "cs ss")
 """
@@ -406,27 +406,19 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
     def __init__(
         self,
-        embeddings: np.ndarray = None,  # pre-generated embeddings
-        embedding_model=None,  # set for alternative transformer embedding model
+        embeddings: np.ndarray = None,
+        embedding_model=None,
         docs: List[
             str
-        ] = None,  # can be set here or when embeddings are created manually
-        reducer_model=None,  # a UMAP instance
+        ] = None,  
+        reducer_model=None,  
         reducer_random_state=None,
         reducer_components=5,
         reduced_embeddings=None,
-        hdbscan_model=None,  # an HDBSCAN instance
+        hdbscan_model=None,  
         viz_reduction=None,
         verbose: int = 0, 
     ):  
-        BaseHDBSCANTuner.__init__(
-            self,
-            hdbscan_model=hdbscan_model,
-            target_vectors=reduced_embeddings,  # Set the reduced embeddings to be clustered
-            viz_reduction=viz_reduction,
-            verbose=verbose,
-        )
-
         """
         Unless explicitly set, TMT Uses the same default param defaults for the embedding model 
         as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. 
@@ -449,12 +441,31 @@ class TopicModelTuner(BaseHDBSCANTuner):
         omitting them.
         """
 
-        self.embeddings = embeddings
-        self.reducer_model = (
-            reducer_model  # Used to reduce the embeddings (if necessary)
+        BaseHDBSCANTuner.__init__(
+            self,
+            hdbscan_model=hdbscan_model,
+            target_vectors=reduced_embeddings,  
+            viz_reduction=viz_reduction,
+            verbose=verbose,
         )
+
+        self.reducer_model = (
+            reducer_model  
+        )
+        
+        self.reducer_random_state = (
+            reducer_random_state
+        )
+        
+        if (self.reducer_random_state == None):
+           self.reducer_random_state = randrange(1000000)
+           if self.reducer_model != None:
+               logger.info("Both reducer_model and random_state set, re-setting rudecer_model.random_state to new value")
+               self.reducer_model.random_state = self.reducer_random_state
+
+        self.embeddings = embeddings
+
         self.reducer_components = reducer_components
-        self.reducer_random_state = reducer_random_state
         self.docs = docs
 
         self.viz_reducer = None # A reducer (defaults to UMAP to create a 2D reduction for a
@@ -472,6 +483,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
                 n_neighbors=5,
                 min_dist=0.0,
                 verbose=self.verbose,
+                random_state=self.reducer_random_state,
             )
         # Set the default BERTopic params
         self.hdbscan_params = {
@@ -510,14 +522,16 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
 
-        hdbscan_params = deepcopy(self.hdbscan_params)
+        hdbscan_params = copy(self.hdbscan_params)
         hdbscan_params["min_cluster_size"] = min_cluster_size
         hdbscan_params["min_samples"] = min_samples
 
         hdbscan_model = HDBSCAN(**hdbscan_params)
 
         return BERTopic(
-            umap_model=deepcopy(self.reducer_model), hdbscan_model=hdbscan_model
+            umap_model=deepcopy(self.reducer_model), 
+            hdbscan_model=hdbscan_model,
+            embedding_model=self.embedding_model,            
         )
 
     def createEmbeddings(self, docs: List[str] = None):
@@ -543,23 +557,6 @@ class TopicModelTuner(BaseHDBSCANTuner):
             raise AttributeError(
                 "No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings="
             )
-        if self.reducer_model.random_state != None:
-            self.reducer_random_state = (
-                self.reducer_model.random_state
-            )  # The reducer has already set a random_state
-        else:
-            random_state = self.reducer_random_state  # could be None
-            if (
-                random_state != None
-            ):  # Reducer random state was not set but tmt random state was
-                self.reducer_model.random_state = (
-                    random_state  # set reducer model random state
-                )
-            else:  # set new random state and capture it
-                self.reducer_model.random_state = randrange(1000000)  # new value
-                self.reducer_random_state = (
-                    self.reducer_model.random_state
-                )  # sync TMT random state
         self.reducer_model.fit(self.embeddings)
         self.target_vectors = self.reducer_model.embedding_
 
@@ -588,14 +585,20 @@ class TopicModelTuner(BaseHDBSCANTuner):
         """
         Returns the X,Y coordinates for use in plotting a visualization of the embeddings.
         """
-        if self.viz_reducer == None:
+        if not np.any(self.viz_reduction):
+        # if self.viz_reduction == None:
             raise AttributeError(
                 "Visualization reduction not performed, call createVizReduction first"
             )
         return self.viz_reducer.embedding_[:, 0], self.viz_reducer.embedding_[:, 1]
 
     def visualizeEmbeddings(
-        self, min_cluster_size: int = None, min_samples: int = None
+        self, 
+        min_cluster_size: int = None, 
+        min_samples: int = None, 
+        width: int=800, 
+        height: int=800, 
+        markersize: int=3,
     ):
         """
         Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
@@ -613,9 +616,11 @@ class TopicModelTuner(BaseHDBSCANTuner):
         if self.docs != None:
             wrappedtext = ["<br>".join(wrap(txt[:400], width=60)) for txt in self.docs]
             VizDF["text"] = wrappedtext
-            hover_data = {"text": True}
+            hover_data = {"text": True,
+                          }
         else:
             hover_data = None
+
         fig = px.scatter(
             VizDF,
             x="x",
@@ -623,6 +628,16 @@ class TopicModelTuner(BaseHDBSCANTuner):
             hover_data=hover_data,
             color=[str(top) for top in topics],
         )
+
+        hovertemplatetext = "Topic #: %{color}<br>"
+
+        if self.docs != None:
+            hovertemplatetext += "Text: %{text}"
+
+        fig.update_traces(hovertemplate=hovertemplatetext)
+
+        fig.update_layout(width=width, height=height)
+        fig.update_traces(marker=dict(size=markersize))
 
         return fig
 
