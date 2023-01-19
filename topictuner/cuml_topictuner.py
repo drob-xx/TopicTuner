@@ -32,7 +32,8 @@ class cumlTopicModelTuner(TopicModelTuner):
         umap_model = UMAP(n_neighbors=15,
                          n_components=5,
                          min_dist=0.0,
-                         metric='cosine')
+                         metric='cosine',
+                         init='random') # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450 
 
         TopicModelTuner.__init__(
             self,
