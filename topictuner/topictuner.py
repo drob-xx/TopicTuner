@@ -312,6 +312,7 @@ class BaseHDBSCANTuner(object):
             hover_data = {"text": True}
         else:
             hover_data = None
+            
         fig = px.scatter(
             VizDF,
             x="x",
