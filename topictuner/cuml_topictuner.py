@@ -48,7 +48,8 @@ class cumlTopicModelTuner(TopicModelTuner):
             hdbscan_model=hdbscan_model,
             reducer_components=reducer_components
         )
-        
+
+    
     @property
     def reducer_random_state(self):
         return self.__reducer_random_state
