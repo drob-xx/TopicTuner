@@ -33,7 +33,7 @@ class cumlTopicModelTuner(TopicModelTuner):
                          n_components=5,
                          min_dist=0.0,
                          metric='cosine',
-                         init='random') # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450 
+                     ) 
 
         TopicModelTuner.__init__(
             self,
@@ -48,6 +48,12 @@ class cumlTopicModelTuner(TopicModelTuner):
             hdbscan_model=hdbscan_model,
             reducer_components=reducer_components
         )
+        
+    @reducer_random_state.setter 
+    def reducer_random_state(self, rv : np.UInt64Dtype):
+        if self.reducer_model != None :
+            self.reducer_model.init = 'random'  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
+            self.reducer_model.random_state = np.uint64(rv)
         
     def getBERTopicModel(self, min_cluster_size: int = None, min_samples: int = None):
         """

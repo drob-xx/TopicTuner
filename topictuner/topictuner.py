@@ -493,6 +493,15 @@ class TopicModelTuner(BaseHDBSCANTuner):
             "prediction_data": True,
             "min_cluster_size": 10,
         }
+        
+    @property
+    def reducer_random_state(self):
+        return self.reducer_random_state
+    
+    @reducer_random_state.setter
+    def reducer_random_state(self, rv : np.uint64):
+        if self.reducer_model != None :
+            self.reducer_model.random_state = np.uint64(rv)  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
 
     @staticmethod
     def wrapBERTopicModel(BERTopicModel: BERTopic):
