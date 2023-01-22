@@ -40,7 +40,7 @@ class cumlTopicModelTuner(TopicModelTuner):
             embeddings=embeddings,
             embedding_model=embedding_model,
             docs=docs,
-            reducer_random_state=reducer_random_state,
+            reducer_random_state=np.uint64(reducer_random_state),
             reduced_embeddings=reduced_embeddings,
             viz_reduction=viz_reduction,
             verbose=verbose,
