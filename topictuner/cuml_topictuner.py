@@ -40,7 +40,7 @@ class cumlTopicModelTuner(TopicModelTuner):
             embeddings=embeddings,
             embedding_model=embedding_model,
             docs=docs,
-            reducer_random_state=np.uint64(reducer_random_state),
+            reducer_random_state=reducer_random_state,
             reduced_embeddings=reduced_embeddings,
             viz_reduction=viz_reduction,
             verbose=verbose,
@@ -49,6 +49,10 @@ class cumlTopicModelTuner(TopicModelTuner):
             reducer_components=reducer_components
         )
         
+    @property
+    def reducer_random_state(self):
+        return self.reducer_random_state
+            
     @reducer_random_state.setter 
     def reducer_random_state(self, rv : np.UInt64Dtype):
         if self.reducer_model != None :
