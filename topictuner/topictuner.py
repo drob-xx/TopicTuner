@@ -275,7 +275,7 @@ class BaseHDBSCANTuner(object):
             self.viz_reducer.fit(self.embeddings)
         else:  # Only TSNE is supported
             self.viz_reducer = TSNE(
-                n_components=2, verbose=self.verbose, random_state=self.random_state
+                n_components=2, verbose=self.verbose, random_state=self.__reducer_random_state
             )
             self.viz_reducer.fit(self.embeddings)
         self.viz_reduction = self.viz_reducer.embedding_
@@ -454,7 +454,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
             reducer_model  
         )
         
-        self.reducer_random_state = (
+        self.__reducer_random_state = (
             reducer_random_state
         )
         
@@ -496,12 +496,13 @@ class TopicModelTuner(BaseHDBSCANTuner):
         
     @property
     def reducer_random_state(self):
-        return self.reducer_random_state
+        return self.__reducer_random_state
     
     @reducer_random_state.setter
     def reducer_random_state(self, rv : np.uint64):
         if self.reducer_model != None :
-            self.reducer_model.random_state = np.uint64(rv)  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
+            self.__reducer_random_state = rv 
+            self.reducer_model.__random_state = np.uint64(rv)  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
 
     @staticmethod
     def wrapBERTopicModel(BERTopicModel: BERTopic):
@@ -586,7 +587,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
             self.viz_reducer = TSNE(
                 n_components=2,
                 verbose=self.verbose,
-                random_state=self.reducer_random_state,
+                random_state=self.__reducer_random_state,
             )
             self.viz_reducer.fit(self.embeddings)
         self.viz_reduction = self.viz_reducer.embedding_
