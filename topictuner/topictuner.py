@@ -455,7 +455,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         )
         
         self.__reducer_random_state = (
-            reducer_random_state
+            np.uint64(reducer_random_state)
         )
         
         if (self.reducer_random_state == None):

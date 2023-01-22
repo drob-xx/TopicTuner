@@ -49,6 +49,7 @@ class cumlTopicModelTuner(TopicModelTuner):
             reducer_components=reducer_components
         )
 
+    self.__reducer_random_state = np.uint64(reducer_random_state)
     
     @property
     def reducer_random_state(self):
