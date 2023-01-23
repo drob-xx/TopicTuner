@@ -63,7 +63,7 @@ class cumlTopicModelTuner(TopicModelTuner):
     @reducer_random_state.setter 
     def reducer_random_state(self, rv : np.uint64):
         if self.reducer_model != None :
-            self.reducer_random_state = rv
+            self.__reducer_random_state = rv
             self.reducer_model.init = 'random'  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
             self.reducer_model.random_state = np.uint64(rv)
         
