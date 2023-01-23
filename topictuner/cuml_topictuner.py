@@ -28,6 +28,12 @@ class cumlTopicModelTuner(TopicModelTuner):
         '''
         Constructor
         '''
+        
+        if reducer_random_state != None:
+            self.__reducer_random_state = np.uint64(reducer_random_state)
+        else :
+            self.__reducer_random_state = None
+        
         hdbscan_model = HDBSCAN()
         umap_model = UMAP(n_neighbors=15,
                          n_components=5,
@@ -49,10 +55,6 @@ class cumlTopicModelTuner(TopicModelTuner):
             reducer_components=reducer_components
         )
 
-        if reducer_random_state != None:
-            self.__reducer_random_state = np.uint64(reducer_random_state)
-        else :
-            self.__reducer_random_state = None
 
     @property
     def reducer_random_state(self):
