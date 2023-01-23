@@ -5,7 +5,6 @@ import numpy as np
 from typing import List
 from copy import copy, deepcopy
 from bertopic import BERTopic
-from numba.core.types import none
 
 
 class cumlTopicModelTuner(TopicModelTuner):
@@ -52,7 +51,9 @@ class cumlTopicModelTuner(TopicModelTuner):
 
         if reducer_random_state != None:
             self.__reducer_random_state = np.uint64(reducer_random_state)
-    
+        else :
+            self.__reducer_random_state = None
+
     @property
     def reducer_random_state(self):
         return self.__reducer_random_state
