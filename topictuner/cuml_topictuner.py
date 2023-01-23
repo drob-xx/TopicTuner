@@ -5,6 +5,8 @@ import numpy as np
 from typing import List
 from copy import copy, deepcopy
 from bertopic import BERTopic
+from random import randrange
+
 
 
 class cumlTopicModelTuner(TopicModelTuner):
@@ -32,14 +34,27 @@ class cumlTopicModelTuner(TopicModelTuner):
         if reducer_random_state != None:
             self.__reducer_random_state = np.uint64(reducer_random_state)
         else :
-            self.__reducer_random_state = None
+            self.__reducer_random_state = np.uint64(randrange(1000000))
         
-        hdbscan_model = HDBSCAN()
-        umap_model = UMAP(n_neighbors=15,
-                         n_components=5,
-                         min_dist=0.0,
-                         metric='cosine',
-                     ) 
+        
+        hdbscan_params = {
+            "metric": "euclidean",
+            "cluster_selection_method": "eom",
+            "prediction_data": True,
+            "min_cluster_size": 10,
+        }
+        
+        hdbscan_model = HDBSCAN(**hdbscan_params)
+        
+        umap_params = {"n_neighbors": 15,
+                       "n_components": 5,
+                       "min_dist": 0.0,
+                       "metric": "cosine",
+                       "init": "random",
+                       "random_state": self.__reducer_random_state,
+                       }
+       
+        umap_model = UMAP(**umap_params) 
 
         TopicModelTuner.__init__(
             self,
