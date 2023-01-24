@@ -39,11 +39,12 @@ class cumlTopicModelTuner(TopicModelTuner):
             reducer_model  
         )        
         
+        if reducer_random_state != None:
+            self.__reducer_random_state = np.uint64(reducer_random_state)
+        else:
+            self.__reducer_random_state = np.uint64(randrange(1000000))
+        
         if self.reducer_model == None:  
-            if reducer_random_state != None:
-                self.__reducer_random_state = np.uint64(reducer_random_state)
-            else:
-                self.__reducer_random_state = np.uint64(randrange(1000000))
             # Use default BERTopic params
             self.reducer_model = UMAP(
                 n_components=reducer_components,
@@ -51,7 +52,7 @@ class cumlTopicModelTuner(TopicModelTuner):
                 n_neighbors=5,
                 min_dist=0.0,
                 verbose=verbose,
-                random_state=reducer_random_state,
+                random_state=self.__reducer_random_state,
                 init="random"
             )
         

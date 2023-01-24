@@ -482,12 +482,14 @@ class TopicModelTuner(BaseHDBSCANTuner):
         self.reducer_model = (
             reducer_model  
         )        
+
+        if reducer_random_state != None:
+            self.__reducer_random_state = np.uint64(reducer_random_state)
+        else:
+            self.__reducer_random_state = np.uint64(randrange(1000000))
+
         
         if self.reducer_model == None:  
-            if reducer_random_state != None:
-                self.__reducer_random_state = np.uint64(reducer_random_state)
-            else:
-                self.__reducer_random_state = np.uint64(randrange(1000000))
             # Use default BERTopic params
             self.reducer_model = UMAP(
                 n_components=self.reducer_components,
