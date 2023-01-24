@@ -636,7 +636,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         VizDF = pd.DataFrame()
         VizDF["x"], VizDF["y"] = self.getVizCoords()
 
-        if self.docs != None:
+        if np.all(self.docs != None):
             wrappedtext = ["<br>".join(wrap(txt[:400], width=60)) for txt in self.docs]
             VizDF["text"] = wrappedtext
             hover_data = {"text": True,
