@@ -563,7 +563,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
             raise AttributeError(
                 "Embeddings already created, reset by setting TMT.embeddings=None"
             )
-        if (self.docs == None) and (docs == None):
+        if (np.all(self.docs == None)) and (np.all(docs == None)):
             raise AttributeError("Docs not specified, set docs=")
         self.docs = docs
 
