@@ -654,7 +654,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         hovertemplatetext = "Topic #: %{color}<br>"
 
-        if self.docs != None:
+        if np.all(self.docs != None):
             hovertemplatetext += "Text: %{text}"
 
         fig.update_traces(hovertemplate=hovertemplatetext,
