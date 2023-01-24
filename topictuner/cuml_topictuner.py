@@ -50,8 +50,8 @@ class cumlTopicModelTuner(TopicModelTuner):
                 metric="cosine",
                 n_neighbors=5,
                 min_dist=0.0,
-                verbose=self.verbose,
-                random_state=self.__reducer_random_state,
+                verbose=verbose,
+                random_state=reducer_random_state,
                 init="random"
             )
         
