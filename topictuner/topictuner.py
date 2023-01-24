@@ -633,35 +633,32 @@ class TopicModelTuner(BaseHDBSCANTuner):
         min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
         topics = self.runHDBSCAN(min_cluster_size, min_samples)
 
+        fig = go.Figure()
         VizDF = pd.DataFrame()
         VizDF["x"], VizDF["y"] = self.getVizCoords()
-
-        if np.all(self.docs != None):
-            wrappedtext = ["<br>".join(wrap(txt[:400], width=60)) for txt in self.docs]
-            VizDF["text"] = wrappedtext
-            hover_data = {"text": True,
-                          }
-        else:
-            hover_data = None
-
-        fig = px.scatter(
-            VizDF,
-            x="x",
-            y="y",
-            hover_data=hover_data,
-            color=[str(top) for top in topics],
-        )
-
-        hovertemplatetext = "Topic #: %{color}<br>"
-
-        if np.all(self.docs != None):
-            hovertemplatetext += "Text: %{text}"
-
-        fig.update_traces(hovertemplate=hovertemplatetext,
-                          marker=dict(size=markersize,
-                                      opacity=opacity))
+        VizDF['topics'] = self.runHDBSCAN()
+        if np.any(self.docs != None):
+          wrappedText = ["<br>".join(wrap(txt[:400], width=60)) for txt in self.docs]
+          VizDF['wrappedText'] = ["Topic #: "+str(topic)+"<br><br>"+text for topic, text in zip(VizDF['topics'], wrappedText)]
+        else :
+          VizDF['wrappedText'] = ["Topic #: "+str(topic) for topic in self.runHDBSCAN()]
+        
+        for topiclabel in set(VizDF['topics']): 
+          topicDF = VizDF.loc[VizDF['topics']==topiclabel]
+          fig.add_trace(
+            go.Scattergl(
+              x=topicDF["x"],
+              y=topicDF["y"],
+              mode='markers',
+              name=str(topiclabel)+" ("+str(topicDF.shape[0])+")",
+              text=topicDF['wrappedText'],
+              hovertemplate = "%{text}<extra></extra>",
+          ))
+        
+        fig.update_traces(marker=dict(size=markersize, 
+                                      opacity=opacity,))
         fig.update_layout(width=width, height=height, legend_title_text='Topics')
-
+        
         return fig
 
     def save(self, fname, save_docs=True, save_embeddings=True, save_viz_reducer=True):
