@@ -4,10 +4,7 @@ Created on Jan 4, 2023
 @author: Dan
 '''
 
-# from topictuner import TopicModelTuner as TMT
-
 # https://github.com/lmcinnes/umap/issues/153
-
 
 import pytest
 from topictuner import TopicModelTuner as TMT
@@ -37,6 +34,15 @@ def tmt_instance(documents):
     tmt.reduce()
     tmt.createVizReduction()
     return tmt
+
+def test_reducer_param_passing():
+    tmt = TMT()
+    bt = tmt.getBERTopicModel(6, 1)
+    assert(bt.umap_model.random_state == tmt.reducer_random_state)
+    tmt = TMT(reducer_random_state=42)
+    bt = tmt.getBERTopicModel(6, 1)
+    assert(bt.umap_model.random_state == tmt.reducer_random_state)
+    assert(bt.umap_model.random_state==42)
 
 def test_bestParams(tmt_instance):
         with pytest.raises(ValueError) : # error no vals set, no bestParams
@@ -196,11 +202,11 @@ def test_get_wrap_BERTopicModel(tmt_instance):
     btModel = tmt_instance.getBERTopicModel()
     assert(btModel.hdbscan_model.min_cluster_size == 22)
     assert(btModel.hdbscan_model.min_samples == 3)
+    assert(btModel.umap_model.random_state == tmt_instance.reducer_model.random_state)
     btModel = tmt_instance.getBERTopicModel(6, 1)
     hdbscan_model = tmt_instance.getHDBSCAN(6, 1)
     hdbscan_model.fit_predict(tmt_instance.target_vectors)
     tmtLabels = hdbscan_model.labels_
-    # btModel.fit_transform(documents)
     documents = fetch_20newsgroups(subset='all',  remove=('headers', 'footers', 'quotes'))['data'][:200]
     btModel.fit_transform(documents)
 

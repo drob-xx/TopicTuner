@@ -6,6 +6,7 @@ from typing import List
 from copy import copy, deepcopy
 from bertopic import BERTopic
 from random import randrange
+from loguru import logger
 
 
 
@@ -21,55 +22,55 @@ class cumlTopicModelTuner(TopicModelTuner):
         docs: List[
             str
         ] = None,  # can be set here or when embeddings are created manually
+        reducer_model=None,
         reducer_random_state=None,
-        reducer_components=5,
+        reducer_components: int=5,
         reduced_embeddings=None,
+        hdbscan_model=None,
         viz_reduction=None,
+        viz_reducer=None,
         verbose: int = 0, 
     ):  
         '''
         Constructor
         '''
         
-        if reducer_random_state != None:
-            self.__reducer_random_state = np.uint64(reducer_random_state)
-        else :
-            self.__reducer_random_state = np.uint64(randrange(1000000))
+        self.reducer_model = (
+            reducer_model  
+        )        
         
+        if self.reducer_model == None:  
+            if reducer_random_state != None:
+                self.__reducer_random_state = np.uint64(reducer_random_state)
+            else:
+                self.__reducer_random_state = np.uint64(randrange(1000000))
+            # Use default BERTopic params
+            self.reducer_model = UMAP(
+                n_components=self.reducer_components,
+                metric="cosine",
+                n_neighbors=5,
+                min_dist=0.0,
+                verbose=self.verbose,
+                random_state=self.__reducer_random_state,
+                init="random"
+            )
         
-        hdbscan_params = {
-            "metric": "euclidean",
-            "cluster_selection_method": "eom",
-            "prediction_data": True,
-            "min_cluster_size": 10,
-        }
-        
-        hdbscan_model = HDBSCAN(**hdbscan_params)
-        
-        umap_params = {"n_neighbors": 15,
-                       "n_components": 5,
-                       "min_dist": 0.0,
-                       "metric": "cosine",
-                       "init": "random",
-                       "random_state": self.__reducer_random_state,
-                       }
-       
-        umap_model = UMAP(**umap_params) 
-
         TopicModelTuner.__init__(
             self,
             embeddings=embeddings,
             embedding_model=embedding_model,
             docs=docs,
             reducer_random_state=self.__reducer_random_state,
+            reducer_model=self.reducer_model,
             reduced_embeddings=reduced_embeddings,
             viz_reduction=viz_reduction,
+            viz_reduer=viz_reducer,
             verbose=verbose,
-            reducer_model=umap_model,
             hdbscan_model=hdbscan_model,
             reducer_components=reducer_components
         )
-
+        
+        logger.warning("Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to \'random\'")
 
     @property
     def reducer_random_state(self):
@@ -104,9 +105,13 @@ class cumlTopicModelTuner(TopicModelTuner):
         hdbscan_params["min_samples"] = min_samples
 
         hdbscan_model = HDBSCAN(**hdbscan_params)
+        
+        reducer_model = deepcopy(self.reducer_model)
+        reducer_model.random_state = self.reducer_random_state 
+
 
         return BERTopic(
-            umap_model=deepcopy(self.reducer_model),
+            umap_model=reducer_model,
             hdbscan_model=hdbscan_model,
             embedding_model=self.embedding_model,  
         )

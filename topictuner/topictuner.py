@@ -14,7 +14,6 @@ from sentence_transformers import SentenceTransformer
 from sklearn.manifold import TSNE
 from tqdm.notebook import tqdm
 from umap import UMAP
-from loguru import logger
 
 paramPair = namedtuple("paramPair", "cs ss")
 """
@@ -42,7 +41,18 @@ class BaseHDBSCANTuner(object):
         
         self._paramPair = paramPair # a type 
         self.__bestParams = paramPair(None, None)
+        
+        if self.hdbscan_model == None:
+            self.hdbscan_params = {  # default BERTopic Params
+                "metric": "euclidean",
+                "cluster_selection_method": "eom",
+                "prediction_data": True,
+                "min_cluster_size": 10,
+            }
+        else:
+            self.hdbscan_params = None
 
+        
     def _check_CS_SS(self, min_cluster_size: int, min_samples: int, useBestParams: bool = False):
         if min_cluster_size == None :
             if useBestParams and ( self.__bestParams.cs != None) :
@@ -414,10 +424,11 @@ class TopicModelTuner(BaseHDBSCANTuner):
         ] = None,  
         reducer_model=None,  
         reducer_random_state=None,
-        reducer_components=5,
+        reducer_components: int=5,
         reduced_embeddings=None,
         hdbscan_model=None,  
         viz_reduction=None,
+        viz_reducer=None,
         verbose: int = 0, 
     ):  
         """
@@ -450,42 +461,6 @@ class TopicModelTuner(BaseHDBSCANTuner):
             verbose=verbose,
         )
 
-        self.reducer_model = (
-            reducer_model  
-        )
-        
-        self.__reducer_random_state = (
-            np.uint64(reducer_random_state)
-        )
-        
-        if (self.reducer_random_state == None):
-           self.reducer_random_state = randrange(1000000)
-           if self.reducer_model != None:
-               logger.info("Both reducer_model and random_state set, re-setting rudecer_model.random_state to new value")
-               self.reducer_model.random_state = self.reducer_random_state
-
-        self.embeddings = embeddings
-
-        self.reducer_components = reducer_components
-        self.docs = docs
-
-        self.viz_reducer = None # A reducer (defaults to UMAP to create a 2D reduction for a
-                                # scatter plot visualization of the embeddings
-
-        if embedding_model == None:
-            self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
-        else:
-            self.embedding_model = embedding_model
-        if reducer_model == None:  
-            # Use default BERTopic params
-            self.reducer_model = UMAP(
-                n_components=self.reducer_components,
-                metric="cosine",
-                n_neighbors=5,
-                min_dist=0.0,
-                verbose=self.verbose,
-                random_state=self.reducer_random_state,
-            )
         # Set the default BERTopic params
         self.hdbscan_params = {
             "metric": "euclidean",
@@ -493,7 +468,36 @@ class TopicModelTuner(BaseHDBSCANTuner):
             "prediction_data": True,
             "min_cluster_size": 10,
         }
+
+        self.embeddings = embeddings
+        self.reducer_components = reducer_components
+        self.docs = docs
+        self.viz_reducer = viz_reducer
+
+        if embedding_model == None:
+            self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
+        else:
+            self.embedding_model = embedding_model
+
+        self.reducer_model = (
+            reducer_model  
+        )        
         
+        if self.reducer_model == None:  
+            if reducer_random_state != None:
+                self.__reducer_random_state = np.uint64(reducer_random_state)
+            else:
+                self.__reducer_random_state = np.uint64(randrange(1000000))
+            # Use default BERTopic params
+            self.reducer_model = UMAP(
+                n_components=self.reducer_components,
+                metric="cosine",
+                n_neighbors=5,
+                min_dist=0.0,
+                verbose=self.verbose,
+                random_state=self.__reducer_random_state,
+            )
+
     @property
     def reducer_random_state(self):
         return self.__reducer_random_state
@@ -502,7 +506,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
     def reducer_random_state(self, rv : np.uint64):
         if self.reducer_model != None :
             self.__reducer_random_state = rv 
-            self.reducer_model.__random_state = np.uint64(rv)  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
+            self.reducer_model.random_state = np.uint64(rv)  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
 
     @staticmethod
     def wrapBERTopicModel(BERTopicModel: BERTopic):
@@ -539,8 +543,11 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         hdbscan_model = HDBSCAN(**hdbscan_params)
 
+        reducer_model = deepcopy(self.reducer_model)
+        reducer_model.random_state = self.reducer_random_state 
+
         return BERTopic(
-            umap_model=deepcopy(self.reducer_model), 
+            umap_model=reducer_model, 
             hdbscan_model=hdbscan_model,
             embedding_model=self.embedding_model,            
         )
@@ -609,7 +616,8 @@ class TopicModelTuner(BaseHDBSCANTuner):
         min_samples: int = None, 
         width: int=800, 
         height: int=800, 
-        markersize: int=3,
+        markersize: int=5,
+        opacity: float=0.50,
     ):
         """
         Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
@@ -645,10 +653,10 @@ class TopicModelTuner(BaseHDBSCANTuner):
         if self.docs != None:
             hovertemplatetext += "Text: %{text}"
 
-        fig.update_traces(hovertemplate=hovertemplatetext)
-
+        fig.update_traces(hovertemplate=hovertemplatetext,
+                          marker=dict(size=markersize,
+                                      opacity=opacity))
         fig.update_layout(width=width, height=height)
-        fig.update_traces(marker=dict(size=markersize))
 
         return fig
 
