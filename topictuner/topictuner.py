@@ -660,7 +660,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         fig.update_traces(hovertemplate=hovertemplatetext,
                           marker=dict(size=markersize,
                                       opacity=opacity))
-        fig.update_layout(width=width, height=height)
+        fig.update_layout(width=width, height=height, legend_title_text='Topics')
 
         return fig
 
