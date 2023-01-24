@@ -64,7 +64,7 @@ class cumlTopicModelTuner(TopicModelTuner):
             reducer_model=self.reducer_model,
             reduced_embeddings=reduced_embeddings,
             viz_reduction=viz_reduction,
-            viz_reduer=viz_reducer,
+            viz_reducer=viz_reducer,
             verbose=verbose,
             hdbscan_model=hdbscan_model,
             reducer_components=reducer_components
