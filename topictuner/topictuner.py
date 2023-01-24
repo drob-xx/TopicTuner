@@ -7,7 +7,7 @@ from typing import List
 import joblib
 import numpy as np
 import pandas as pd
-import plotly.express as px
+import plotly.graph_objects as go
 from bertopic import BERTopic
 from hdbscan import HDBSCAN
 from sentence_transformers import SentenceTransformer
