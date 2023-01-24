@@ -46,7 +46,7 @@ class cumlTopicModelTuner(TopicModelTuner):
                 self.__reducer_random_state = np.uint64(randrange(1000000))
             # Use default BERTopic params
             self.reducer_model = UMAP(
-                n_components=self.reducer_components,
+                n_components=reducer_components,
                 metric="cosine",
                 n_neighbors=5,
                 min_dist=0.0,
