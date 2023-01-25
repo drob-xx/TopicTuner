@@ -1,6 +1,6 @@
 from loguru import logger
 from topictuner.topictuner import TopicModelTuner
-from topictuner.topictuner import BaseHDBSCANTuner
+from topictuner.basetuner import BaseHDBSCANTuner
 try:
     from topictuner.cuml_topictuner import cumlTopicModelTuner
 except ImportError:

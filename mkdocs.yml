@@ -1,0 +1,19 @@
+site_name: TopicModelTuner
+
+theme:
+  name: material
+  features:
+    - navigation.tabs
+    - toc.integrate
+  
+plugins:
+- mkdocstrings:
+    handlers:
+      python:
+        members_order: source
+       
+
+markdown_extensions:
+- admonition
+- codehilite
+- pymdownx.superfences
