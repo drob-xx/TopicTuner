@@ -414,8 +414,7 @@ and UMAP models are exposed within the class and can be set to any parameters de
 
         <details class="quote">
           <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-          <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 18</span>
-<span class="normal"> 19</span>
+          <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 19</span>
 <span class="normal"> 20</span>
 <span class="normal"> 21</span>
 <span class="normal"> 22</span>
@@ -660,11 +659,7 @@ and UMAP models are exposed within the class and can be set to any parameters de
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TopicModelTuner</span><span class="p">(</span><span class="n">BaseHDBSCANTuner</span><span class="p">):</span>
+<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">TopicModelTuner</span><span class="p">(</span><span class="n">BaseHDBSCANTuner</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    TopicModelTuner (TMT) is a class facilitate the interactive optimization of HDBSCAN&#39;s</span>
 <span class="sd">    min_clust_size and min_sample parameters in the context BERTopic.</span>
@@ -689,21 +684,19 @@ and UMAP models are exposed within the class and can be set to any parameters de
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">embeddings</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
         <span class="n">embedding_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span>
-            <span class="nb">str</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  
-        <span class="n">reducer_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  
+        <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">reducer_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reducer_random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">reduced_embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  
+        <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">viz_reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">viz_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
-    <span class="p">):</span>  
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Unless explicitly set, TMT Uses the same default param defaults for the embedding model </span>
-<span class="sd">        as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. </span>
+<span class="sd">        Unless explicitly set, TMT Uses the same default param defaults for the embedding model</span>
+<span class="sd">        as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults.</span>
 
 <span class="sd">        - &#39;all-MiniLM-L6-v2&#39; sentence transformer as the default language model embedding.</span>
 <span class="sd">        - UMAP - metric=&#39;cosine&#39;, n_neighbors=5, min_dist=0.0</span>
@@ -716,7 +709,7 @@ and UMAP models are exposed within the class and can be set to any parameters de
 <span class="sd">        - Using different UMAP settings or a different dimensional reduction method by setting reducer_model</span>
 <span class="sd">        - Using different HDBSCAN parameters by setting hdbscan_model</span>
 
-<span class="sd">        These can be set in the constructor or after instantiation by setting the instance variables </span>
+<span class="sd">        These can be set in the constructor or after instantiation by setting the instance variables</span>
 <span class="sd">        before generating the embeddings or reduction.</span>
 
 <span class="sd">        Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - or optionally</span>
@@ -726,7 +719,7 @@ and UMAP models are exposed within the class and can be set to any parameters de
         <span class="n">BaseHDBSCANTuner</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-            <span class="n">target_vectors</span><span class="o">=</span><span class="n">reduced_embeddings</span><span class="p">,</span>  
+            <span class="n">target_vectors</span><span class="o">=</span><span class="n">reduced_embeddings</span><span class="p">,</span>
             <span class="n">viz_reduction</span><span class="o">=</span><span class="n">viz_reduction</span><span class="p">,</span>
             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
         <span class="p">)</span>
@@ -748,18 +741,13 @@ and UMAP models are exposed within the class and can be set to any parameters de
             <span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span> <span class="o">=</span> <span class="n">embedding_model</span>
-
-        <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">reducer_model</span>  
-        <span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">reducer_model</span>
 
         <span class="k">if</span> <span class="n">reducer_random_state</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">reducer_random_state</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1000000</span><span class="p">))</span>
-
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>  
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Use default BERTopic params</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">UMAP</span><span class="p">(</span>
                 <span class="n">n_components</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer_components</span><span class="p">,</span>
@@ -775,10 +763,12 @@ and UMAP models are exposed within the class and can be set to any parameters de
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span>
 
     <span class="nd">@reducer_random_state</span><span class="o">.</span><span class="n">setter</span>
-    <span class="k">def</span> <span class="nf">reducer_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rv</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">!=</span> <span class="kc">None</span> <span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">rv</span> 
-            <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>  <span class="c1"># added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450</span>
+    <span class="k">def</span> <span class="nf">reducer_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">rv</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span>
+                <span class="n">rv</span>
+            <span class="p">)</span>  <span class="c1"># added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450</span>
 
     <span class="nd">@staticmethod</span>
     <span class="k">def</span> <span class="nf">wrapBERTopicModel</span><span class="p">(</span><span class="n">BERTopicModel</span><span class="p">:</span> <span class="n">BERTopic</span><span class="p">):</span>
@@ -807,7 +797,9 @@ and UMAP models are exposed within the class and can be set to any parameters de
 <span class="sd">        as was used in the TMT model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+            <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="n">hdbscan_params</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span><span class="p">)</span>
         <span class="n">hdbscan_params</span><span class="p">[</span><span class="s2">&quot;min_cluster_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cluster_size</span>
@@ -816,12 +808,12 @@ and UMAP models are exposed within the class and can be set to any parameters de
         <span class="n">hdbscan_model</span> <span class="o">=</span> <span class="n">HDBSCAN</span><span class="p">(</span><span class="o">**</span><span class="n">hdbscan_params</span><span class="p">)</span>
 
         <span class="n">reducer_model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="p">)</span>
-        <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span> 
+        <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span>
 
         <span class="k">return</span> <span class="n">BERTopic</span><span class="p">(</span>
-            <span class="n">umap_model</span><span class="o">=</span><span class="n">reducer_model</span><span class="p">,</span> 
+            <span class="n">umap_model</span><span class="o">=</span><span class="n">reducer_model</span><span class="p">,</span>
             <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-            <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>            
+            <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>
         <span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">createEmbeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -835,10 +827,8 @@ and UMAP models are exposed within the class and can be set to any parameters de
             <span class="p">)</span>
         <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">docs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Docs not specified, set docs=&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">=</span> <span class="n">docs</span>
-
         <span class="bp">self</span><span class="o">.</span><span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -878,7 +868,7 @@ and UMAP models are exposed within the class and can be set to any parameters de
 <span class="sd">        Returns the X,Y coordinates for use in plotting a visualization of the embeddings.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viz_reduction</span><span class="p">):</span>
-        <span class="c1"># if self.viz_reduction == None:</span>
+            <span class="c1"># if self.viz_reduction == None:</span>
             <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
                 <span class="s2">&quot;Visualization reduction not performed, call createVizReduction first&quot;</span>
             <span class="p">)</span>
@@ -942,8 +932,8 @@ and UMAP models are exposed within the class and can be set to any parameters de
 
   <div class="doc doc-contents ">
   
-      <p>Unless explicitly set, TMT Uses the same default param defaults for the embedding model 
-as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. </p>
+      <p>Unless explicitly set, TMT Uses the same default param defaults for the embedding model
+as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults.</p>
 <ul>
 <li>'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.</li>
 <li>UMAP - metric='cosine', n_neighbors=5, min_dist=0.0</li>
@@ -956,15 +946,14 @@ as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. </p
 <li>Using different UMAP settings or a different dimensional reduction method by setting reducer_model</li>
 <li>Using different HDBSCAN parameters by setting hdbscan_model</li>
 </ul>
-<p>These can be set in the constructor or after instantiation by setting the instance variables 
+<p>These can be set in the constructor or after instantiation by setting the instance variables
 before generating the embeddings or reduction.</p>
 <p>Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - or optionally
 omitting them.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 39</span>
-<span class="normal"> 40</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 40</span>
 <span class="normal"> 41</span>
 <span class="normal"> 42</span>
 <span class="normal"> 43</span>
@@ -1040,31 +1029,23 @@ omitting them.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span>
-<span class="normal">119</span>
-<span class="normal">120</span>
-<span class="normal">121</span>
-<span class="normal">122</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
     <span class="n">embedding_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span>
-        <span class="nb">str</span>
-    <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  
-    <span class="n">reducer_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  
+    <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">reducer_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">reducer_random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">reduced_embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  
+    <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">viz_reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">viz_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
-<span class="p">):</span>  
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Unless explicitly set, TMT Uses the same default param defaults for the embedding model </span>
-<span class="sd">    as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. </span>
+<span class="sd">    Unless explicitly set, TMT Uses the same default param defaults for the embedding model</span>
+<span class="sd">    as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults.</span>
 
 <span class="sd">    - &#39;all-MiniLM-L6-v2&#39; sentence transformer as the default language model embedding.</span>
 <span class="sd">    - UMAP - metric=&#39;cosine&#39;, n_neighbors=5, min_dist=0.0</span>
@@ -1077,7 +1058,7 @@ omitting them.</p>
 <span class="sd">    - Using different UMAP settings or a different dimensional reduction method by setting reducer_model</span>
 <span class="sd">    - Using different HDBSCAN parameters by setting hdbscan_model</span>
 
-<span class="sd">    These can be set in the constructor or after instantiation by setting the instance variables </span>
+<span class="sd">    These can be set in the constructor or after instantiation by setting the instance variables</span>
 <span class="sd">    before generating the embeddings or reduction.</span>
 
 <span class="sd">    Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - or optionally</span>
@@ -1087,7 +1068,7 @@ omitting them.</p>
     <span class="n">BaseHDBSCANTuner</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-        <span class="n">target_vectors</span><span class="o">=</span><span class="n">reduced_embeddings</span><span class="p">,</span>  
+        <span class="n">target_vectors</span><span class="o">=</span><span class="n">reduced_embeddings</span><span class="p">,</span>
         <span class="n">viz_reduction</span><span class="o">=</span><span class="n">viz_reduction</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
     <span class="p">)</span>
@@ -1109,18 +1090,13 @@ omitting them.</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span> <span class="o">=</span> <span class="n">SentenceTransformer</span><span class="p">(</span><span class="s2">&quot;all-MiniLM-L6-v2&quot;</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span> <span class="o">=</span> <span class="n">embedding_model</span>
-
-    <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">reducer_model</span>  
-    <span class="p">)</span>        
+    <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">reducer_model</span>
 
     <span class="k">if</span> <span class="n">reducer_random_state</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">reducer_random_state</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1000000</span><span class="p">))</span>
-
-
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>  
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Use default BERTopic params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">UMAP</span><span class="p">(</span>
             <span class="n">n_components</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer_components</span><span class="p">,</span>
@@ -1152,7 +1128,9 @@ omitting them.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">178</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
 <span class="normal">179</span>
 <span class="normal">180</span>
 <span class="normal">181</span>
@@ -1163,11 +1141,7 @@ omitting them.</p>
 <span class="normal">186</span>
 <span class="normal">187</span>
 <span class="normal">188</span>
-<span class="normal">189</span>
-<span class="normal">190</span>
-<span class="normal">191</span>
-<span class="normal">192</span>
-<span class="normal">193</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createEmbeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">189</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createEmbeddings</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">docs</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Create embeddings</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1178,10 +1152,8 @@ omitting them.</p>
         <span class="p">)</span>
     <span class="k">if</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">))</span> <span class="ow">and</span> <span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">docs</span> <span class="o">==</span> <span class="kc">None</span><span class="p">)):</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span><span class="s2">&quot;Docs not specified, set docs=&quot;</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span><span class="o">!=</span><span class="kc">None</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">docs</span><span class="p">)</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">=</span> <span class="n">docs</span>
-
     <span class="bp">self</span><span class="o">.</span><span class="n">embeddings</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="o">.</span><span class="n">encode</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
@@ -1205,7 +1177,11 @@ omitting them.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">202</span>
+<span class="normal">203</span>
+<span class="normal">204</span>
+<span class="normal">205</span>
+<span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
@@ -1220,11 +1196,7 @@ omitting them.</p>
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span>
-<span class="normal">221</span>
-<span class="normal">222</span>
-<span class="normal">223</span>
-<span class="normal">224</span>
-<span class="normal">225</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createVizReduction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;UMAP&quot;</span><span class="p">):</span>
+<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createVizReduction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;UMAP&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1274,7 +1246,11 @@ as was used in the TMT model.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">146</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">142</span>
+<span class="normal">143</span>
+<span class="normal">144</span>
+<span class="normal">145</span>
+<span class="normal">146</span>
 <span class="normal">147</span>
 <span class="normal">148</span>
 <span class="normal">149</span>
@@ -1302,9 +1278,7 @@ as was used in the TMT model.</p>
 <span class="normal">171</span>
 <span class="normal">172</span>
 <span class="normal">173</span>
-<span class="normal">174</span>
-<span class="normal">175</span>
-<span class="normal">176</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getBERTopicModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">174</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getBERTopicModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a BERTopic model with the specified HDBSCAN parameters. The user is left</span>
 <span class="sd">    to specify their chosen best settings after running a series of parameters searches.</span>
@@ -1319,7 +1293,9 @@ as was used in the TMT model.</p>
 <span class="sd">    as was used in the TMT model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="n">hdbscan_params</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span><span class="p">)</span>
     <span class="n">hdbscan_params</span><span class="p">[</span><span class="s2">&quot;min_cluster_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cluster_size</span>
@@ -1328,12 +1304,12 @@ as was used in the TMT model.</p>
     <span class="n">hdbscan_model</span> <span class="o">=</span> <span class="n">HDBSCAN</span><span class="p">(</span><span class="o">**</span><span class="n">hdbscan_params</span><span class="p">)</span>
 
     <span class="n">reducer_model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="p">)</span>
-    <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span> 
+    <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span>
 
     <span class="k">return</span> <span class="n">BERTopic</span><span class="p">(</span>
-        <span class="n">umap_model</span><span class="o">=</span><span class="n">reducer_model</span><span class="p">,</span> 
+        <span class="n">umap_model</span><span class="o">=</span><span class="n">reducer_model</span><span class="p">,</span>
         <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-        <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>            
+        <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
@@ -1357,21 +1333,21 @@ as was used in the TMT model.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">227</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">223</span>
+<span class="normal">224</span>
+<span class="normal">225</span>
+<span class="normal">226</span>
+<span class="normal">227</span>
 <span class="normal">228</span>
 <span class="normal">229</span>
 <span class="normal">230</span>
 <span class="normal">231</span>
-<span class="normal">232</span>
-<span class="normal">233</span>
-<span class="normal">234</span>
-<span class="normal">235</span>
-<span class="normal">236</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getVizCoords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">232</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getVizCoords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the X,Y coordinates for use in plotting a visualization of the embeddings.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">viz_reduction</span><span class="p">):</span>
-    <span class="c1"># if self.viz_reduction == None:</span>
+        <span class="c1"># if self.viz_reduction == None:</span>
         <span class="k">raise</span> <span class="ne">AttributeError</span><span class="p">(</span>
             <span class="s2">&quot;Visualization reduction not performed, call createVizReduction first&quot;</span>
         <span class="p">)</span>
@@ -1402,16 +1378,16 @@ as was used in the TMT model.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">259</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">255</span>
+<span class="normal">256</span>
+<span class="normal">257</span>
+<span class="normal">258</span>
+<span class="normal">259</span>
 <span class="normal">260</span>
 <span class="normal">261</span>
 <span class="normal">262</span>
 <span class="normal">263</span>
-<span class="normal">264</span>
-<span class="normal">265</span>
-<span class="normal">266</span>
-<span class="normal">267</span>
-<span class="normal">268</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">264</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="n">fname</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Restore a saved TMT object from disk</span>
@@ -1443,16 +1419,16 @@ as was used in the TMT model.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">195</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">191</span>
+<span class="normal">192</span>
+<span class="normal">193</span>
+<span class="normal">194</span>
+<span class="normal">195</span>
 <span class="normal">196</span>
 <span class="normal">197</span>
 <span class="normal">198</span>
 <span class="normal">199</span>
-<span class="normal">200</span>
-<span class="normal">201</span>
-<span class="normal">202</span>
-<span class="normal">203</span>
-<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">200</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">reduce</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Reduce dimensionality of the embeddings</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1485,7 +1461,11 @@ the viz reduction</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">238</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">234</span>
+<span class="normal">235</span>
+<span class="normal">236</span>
+<span class="normal">237</span>
+<span class="normal">238</span>
 <span class="normal">239</span>
 <span class="normal">240</span>
 <span class="normal">241</span>
@@ -1500,11 +1480,7 @@ the viz reduction</p>
 <span class="normal">250</span>
 <span class="normal">251</span>
 <span class="normal">252</span>
-<span class="normal">253</span>
-<span class="normal">254</span>
-<span class="normal">255</span>
-<span class="normal">256</span>
-<span class="normal">257</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">save_docs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_viz_reducer</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+<span class="normal">253</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">fname</span><span class="p">,</span> <span class="n">save_docs</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_embeddings</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">save_viz_reducer</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Saves the TMT object. User can choose whether or not to save docs, embeddings and/or</span>
 <span class="sd">    the viz reduction</span>
@@ -1550,17 +1526,17 @@ the viz reduction</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">134</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">130</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
 <span class="normal">135</span>
 <span class="normal">136</span>
 <span class="normal">137</span>
 <span class="normal">138</span>
 <span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
-<span class="normal">143</span>
-<span class="normal">144</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="nd">@staticmethod</span>
 <span class="k">def</span> <span class="nf">wrapBERTopicModel</span><span class="p">(</span><span class="n">BERTopicModel</span><span class="p">:</span> <span class="n">BERTopic</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    This is a helper function which returns a TMT instance using the values from a BERTopic instance.</span>

@@ -351,7 +351,8 @@
 
         <details class="quote">
           <summary>Source code in <code>TopicTuner\cuml_topictuner.py</code></summary>
-          <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 13</span>
+          <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 12</span>
+<span class="normal"> 13</span>
 <span class="normal"> 14</span>
 <span class="normal"> 15</span>
 <span class="normal"> 16</span>
@@ -454,12 +455,10 @@
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">cumlTopicModelTuner</span><span class="p">(</span><span class="n">TopicModelTuner</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">cumlTopicModelTuner</span><span class="p">(</span><span class="n">TopicModelTuner</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    classdocs</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
@@ -470,27 +469,24 @@
         <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># can be set here or when embeddings are created manually</span>
         <span class="n">reducer_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">reducer_random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+        <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
         <span class="n">reduced_embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">viz_reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
         <span class="n">viz_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
-    <span class="p">):</span>  
-<span class="w">        </span><span class="sd">&#39;&#39;&#39;</span>
+        <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+    <span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Constructor</span>
-<span class="sd">        &#39;&#39;&#39;</span>
+<span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">reducer_model</span>  
-        <span class="p">)</span>        
+        <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">reducer_model</span>
 
         <span class="k">if</span> <span class="n">reducer_random_state</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">reducer_random_state</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1000000</span><span class="p">))</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>  
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="c1"># Use default BERTopic params</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">UMAP</span><span class="p">(</span>
                 <span class="n">n_components</span><span class="o">=</span><span class="n">reducer_components</span><span class="p">,</span>
@@ -499,9 +495,8 @@
                 <span class="n">min_dist</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
                 <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span><span class="p">,</span>
-                <span class="n">init</span><span class="o">=</span><span class="s2">&quot;random&quot;</span>
+                <span class="n">init</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
             <span class="p">)</span>
-
         <span class="n">TopicModelTuner</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="bp">self</span><span class="p">,</span>
             <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">,</span>
@@ -514,20 +509,22 @@
             <span class="n">viz_reducer</span><span class="o">=</span><span class="n">viz_reducer</span><span class="p">,</span>
             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
             <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-            <span class="n">reducer_components</span><span class="o">=</span><span class="n">reducer_components</span>
+            <span class="n">reducer_components</span><span class="o">=</span><span class="n">reducer_components</span><span class="p">,</span>
         <span class="p">)</span>
 
-        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to </span><span class="se">\&#39;</span><span class="s2">random</span><span class="se">\&#39;</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+            <span class="s2">&quot;Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to &#39;random&#39;&quot;</span>
+        <span class="p">)</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span> <span class="nf">reducer_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span>
 
-    <span class="nd">@reducer_random_state</span><span class="o">.</span><span class="n">setter</span> 
-    <span class="k">def</span> <span class="nf">reducer_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rv</span> <span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">):</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">!=</span> <span class="kc">None</span> <span class="p">:</span>
+    <span class="nd">@reducer_random_state</span><span class="o">.</span><span class="n">setter</span>
+    <span class="k">def</span> <span class="nf">reducer_random_state</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rv</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">):</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">rv</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="s1">&#39;random&#39;</span>  <span class="c1"># added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="o">.</span><span class="n">init</span> <span class="o">=</span> <span class="s2">&quot;random&quot;</span>  <span class="c1"># added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">rv</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">getBERTopicModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
@@ -545,7 +542,9 @@
 <span class="sd">        as was used in the TMT model.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+            <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="n">hdbscan_params</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span><span class="p">)</span>
         <span class="n">hdbscan_params</span><span class="p">[</span><span class="s2">&quot;min_cluster_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cluster_size</span>
@@ -554,13 +553,12 @@
         <span class="n">hdbscan_model</span> <span class="o">=</span> <span class="n">HDBSCAN</span><span class="p">(</span><span class="o">**</span><span class="n">hdbscan_params</span><span class="p">)</span>
 
         <span class="n">reducer_model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="p">)</span>
-        <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span> 
-
+        <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span>
 
         <span class="k">return</span> <span class="n">BERTopic</span><span class="p">(</span>
             <span class="n">umap_model</span><span class="o">=</span><span class="n">reducer_model</span><span class="p">,</span>
             <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-            <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>  
+            <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>
         <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
         </details>
@@ -593,7 +591,8 @@
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\cuml_topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">18</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">17</span>
+<span class="normal">18</span>
 <span class="normal">19</span>
 <span class="normal">20</span>
 <span class="normal">21</span>
@@ -646,10 +645,7 @@
 <span class="normal">68</span>
 <span class="normal">69</span>
 <span class="normal">70</span>
-<span class="normal">71</span>
-<span class="normal">72</span>
-<span class="normal">73</span>
-<span class="normal">74</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
+<span class="normal">71</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">embeddings</span><span class="p">:</span> <span class="n">np</span><span class="o">.</span><span class="n">ndarray</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># pre-generated embeddings</span>
     <span class="n">embedding_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1"># set for alternative transformer embedding model</span>
@@ -658,27 +654,24 @@
     <span class="p">]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>  <span class="c1"># can be set here or when embeddings are created manually</span>
     <span class="n">reducer_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">reducer_random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">reducer_components</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
     <span class="n">reduced_embeddings</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">viz_reduction</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">viz_reducer</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span> 
-<span class="p">):</span>  
-<span class="w">    </span><span class="sd">&#39;&#39;&#39;</span>
+    <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Constructor</span>
-<span class="sd">    &#39;&#39;&#39;</span>
+<span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="n">reducer_model</span>  
-    <span class="p">)</span>        
+    <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">reducer_model</span>
 
     <span class="k">if</span> <span class="n">reducer_random_state</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">reducer_random_state</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">uint64</span><span class="p">(</span><span class="n">randrange</span><span class="p">(</span><span class="mi">1000000</span><span class="p">))</span>
-
-    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>  
+    <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="c1"># Use default BERTopic params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span> <span class="o">=</span> <span class="n">UMAP</span><span class="p">(</span>
             <span class="n">n_components</span><span class="o">=</span><span class="n">reducer_components</span><span class="p">,</span>
@@ -687,9 +680,8 @@
             <span class="n">min_dist</span><span class="o">=</span><span class="mf">0.0</span><span class="p">,</span>
             <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
             <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span><span class="p">,</span>
-            <span class="n">init</span><span class="o">=</span><span class="s2">&quot;random&quot;</span>
+            <span class="n">init</span><span class="o">=</span><span class="s2">&quot;random&quot;</span><span class="p">,</span>
         <span class="p">)</span>
-
     <span class="n">TopicModelTuner</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">embeddings</span><span class="o">=</span><span class="n">embeddings</span><span class="p">,</span>
@@ -702,10 +694,12 @@
         <span class="n">viz_reducer</span><span class="o">=</span><span class="n">viz_reducer</span><span class="p">,</span>
         <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
         <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-        <span class="n">reducer_components</span><span class="o">=</span><span class="n">reducer_components</span>
+        <span class="n">reducer_components</span><span class="o">=</span><span class="n">reducer_components</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">&quot;Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to </span><span class="se">\&#39;</span><span class="s2">random</span><span class="se">\&#39;</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logger</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+        <span class="s2">&quot;Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to &#39;random&#39;&quot;</span>
+    <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -736,7 +730,10 @@ as was used in the TMT model.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\cuml_topictuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 87</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 84</span>
+<span class="normal"> 85</span>
+<span class="normal"> 86</span>
+<span class="normal"> 87</span>
 <span class="normal"> 88</span>
 <span class="normal"> 89</span>
 <span class="normal"> 90</span>
@@ -765,9 +762,7 @@ as was used in the TMT model.</p>
 <span class="normal">113</span>
 <span class="normal">114</span>
 <span class="normal">115</span>
-<span class="normal">116</span>
-<span class="normal">117</span>
-<span class="normal">118</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getBERTopicModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">116</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getBERTopicModel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a BERTopic model with the specified HDBSCAN parameters. The user is left</span>
 <span class="sd">    to specify their chosen best settings after running a series of parameters searches.</span>
@@ -782,7 +777,9 @@ as was used in the TMT model.</p>
 <span class="sd">    as was used in the TMT model.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="n">hdbscan_params</span> <span class="o">=</span> <span class="n">copy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span><span class="p">)</span>
     <span class="n">hdbscan_params</span><span class="p">[</span><span class="s2">&quot;min_cluster_size&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">min_cluster_size</span>
@@ -791,13 +788,12 @@ as was used in the TMT model.</p>
     <span class="n">hdbscan_model</span> <span class="o">=</span> <span class="n">HDBSCAN</span><span class="p">(</span><span class="o">**</span><span class="n">hdbscan_params</span><span class="p">)</span>
 
     <span class="n">reducer_model</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">reducer_model</span><span class="p">)</span>
-    <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span> 
-
+    <span class="n">reducer_model</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">reducer_random_state</span>
 
     <span class="k">return</span> <span class="n">BERTopic</span><span class="p">(</span>
         <span class="n">umap_model</span><span class="o">=</span><span class="n">reducer_model</span><span class="p">,</span>
         <span class="n">hdbscan_model</span><span class="o">=</span><span class="n">hdbscan_model</span><span class="p">,</span>
-        <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>  
+        <span class="n">embedding_model</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">embedding_model</span><span class="p">,</span>
     <span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>

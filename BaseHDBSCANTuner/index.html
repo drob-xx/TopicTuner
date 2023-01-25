@@ -431,8 +431,7 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 
         <details class="quote">
           <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-          <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 16</span>
-<span class="normal"> 17</span>
+          <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 17</span>
 <span class="normal"> 18</span>
 <span class="normal"> 19</span>
 <span class="normal"> 20</span>
@@ -819,11 +818,25 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 <span class="normal">401</span>
 <span class="normal">402</span>
 <span class="normal">403</span>
-<span class="normal">404</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">BaseHDBSCANTuner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+<span class="normal">404</span>
+<span class="normal">405</span>
+<span class="normal">406</span>
+<span class="normal">407</span>
+<span class="normal">408</span>
+<span class="normal">409</span>
+<span class="normal">410</span>
+<span class="normal">411</span>
+<span class="normal">412</span>
+<span class="normal">413</span>
+<span class="normal">414</span>
+<span class="normal">415</span>
+<span class="normal">416</span>
+<span class="normal">417</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">class</span> <span class="nc">BaseHDBSCANTuner</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A base class with the HDBSCAN functionality without any references to BERTopic.</span>
 <span class="sd">    In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">hdbscan_model</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>  <span class="c1">#: an HDBSCAN instance</span>
@@ -832,13 +845,13 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
         <span class="n">verbose</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span><span class="p">,</span>
     <span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_model</span> <span class="o">=</span> <span class="n">hdbscan_model</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">target_vectors</span> <span class="o">=</span> <span class="n">target_vectors</span> 
+        <span class="bp">self</span><span class="o">.</span><span class="n">target_vectors</span> <span class="o">=</span> <span class="n">target_vectors</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">verbose</span> <span class="o">=</span> <span class="n">verbose</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">ResultsDF</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># A running collection of all the parameters and results if a DataFrame</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viz_reduction</span> <span class="o">=</span> <span class="n">viz_reduction</span>
 
-        <span class="bp">self</span><span class="o">.</span><span class="n">_paramPair</span> <span class="o">=</span> <span class="n">paramPair</span> <span class="c1"># a type </span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_paramPair</span> <span class="o">=</span> <span class="n">paramPair</span>  <span class="c1"># a type</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span> <span class="o">=</span> <span class="n">paramPair</span><span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
@@ -859,14 +872,14 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
     <span class="k">def</span> <span class="nf">bestParams</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        The best min_cluster_size and min_samples values. These are set</span>
-<span class="sd">        by the user, not automatically. They are used in various places as </span>
+<span class="sd">        by the user, not automatically. They are used in various places as</span>
 <span class="sd">        default values (if set).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span>
 
     <span class="nd">@bestParams</span><span class="o">.</span><span class="n">setter</span>
     <span class="k">def</span> <span class="nf">bestParams</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">params</span><span class="p">):</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="n">paramPair</span><span class="p">))</span> <span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="p">((</span><span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="nb">tuple</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">type</span><span class="p">(</span><span class="n">params</span><span class="p">)</span> <span class="o">==</span> <span class="n">paramPair</span><span class="p">)):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;bestParams must be a tuple or parampair&quot;</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span> <span class="o">=</span> <span class="n">paramPair</span><span class="p">(</span><span class="n">params</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">params</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
@@ -874,11 +887,13 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
     <span class="k">def</span> <span class="nf">getHDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Exposed for convenience, returns a parameterized HDBSCAN model per</span>
-<span class="sd">        the current version in BaseHDBSCANTuner (with the params other than </span>
+<span class="sd">        the current version in BaseHDBSCANTuner (with the params other than</span>
 <span class="sd">        min_cluster_size and min_samples)</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+            <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
             <span class="n">hdbscan_params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span><span class="p">)</span>
@@ -897,7 +912,9 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 <span class="sd">        run as a TMT instance. Per HDBSCAN, min_samples must be more than 0 and less than</span>
 <span class="sd">        or equal to min_cluster_size.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+            <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
         <span class="n">hdbscan_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getHDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
         <span class="n">hdbscan_model</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_vectors</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">hdbscan_model</span><span class="o">.</span><span class="n">labels_</span>
@@ -916,21 +933,24 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 <span class="sd">        This function will randomly select a min_cluster_size and a min_samples percent</span>
 <span class="sd">        value from the supplied values. The min_samples percent will be used to calculate</span>
 <span class="sd">        the min_samples parameter to be used. That value will be rounded up to 1 if less than 1</span>
-<span class="sd">        and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and </span>
+<span class="sd">        and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and</span>
 <span class="sd">        the random percent is .75 then the min_cluster_size=10 and min_samples=8.</span>
 
 <span class="sd">        All of the search results will be added to ResultsDF and a separate DataFrame containing</span>
 <span class="sd">        just the results from just this search will be returned by this method.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_size_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples_pct_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cluster_size_range and min_samples_pct_range cannot be empty&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_size_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples_pct_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;cluster_size_range and min_samples_pct_range cannot be empty&quot;</span>
+            <span class="p">)</span>
         <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_size_range</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">min_samples_pct_range</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">:</span>
-                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;min_samples calculated as percent of cluster_size, must be less than or equal to 1&#39;</span><span class="p">)</span>
-
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                    <span class="s2">&quot;min_samples calculated as percent of cluster_size, must be less than or equal to 1&quot;</span>
+                <span class="p">)</span>
         <span class="n">searchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genRandomSearchParams</span><span class="p">(</span>
             <span class="n">cluster_size_range</span><span class="p">,</span> <span class="n">min_samples_pct_range</span><span class="p">,</span> <span class="n">iters</span>
         <span class="p">)</span>
@@ -945,19 +965,15 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 <span class="sd">        for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of those for 10%, 20%, 30%,...100%).</span>
 <span class="sd">        &quot;&quot;&quot;</span>
 
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cluster sizes and min_samples cannot be empty&#39;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cluster sizes and min_samples cannot be empty&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_sizes</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s2">&quot;min_cluster_size must be more than 1&quot;</span>
-            <span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">min_samples</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">:</span>
+            <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;min_samples calculated as percent of cluster_size, must be less than or equal to 1&quot;</span>
-            <span class="p">)</span>
-
+                <span class="p">)</span>
         <span class="n">searchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genGridSearchParams</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runTests</span><span class="p">(</span><span class="n">searchParams</span><span class="p">)</span>
 
@@ -966,19 +982,18 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 <span class="sd">        For any n (int) in searchRange, generates all possible min_samples values (1 to n) and performs</span>
 <span class="sd">        the search.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cluster sizes must be &gt; 1&#39;</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">searchRange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>  <span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Search range cannot be empty&#39;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cluster sizes must be &gt; 1&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">searchRange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Search range cannot be empty&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
             <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
-
         <span class="n">cs_list</span><span class="p">,</span> <span class="n">ss_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">cs_val</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
             <span class="k">for</span> <span class="n">ss_val</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cs_val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]:</span>
                 <span class="n">cs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cs_val</span><span class="p">)</span>
                 <span class="n">ss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ss_val</span><span class="p">)</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleSearch</span><span class="p">(</span><span class="n">cs_list</span><span class="p">,</span> <span class="n">ss_list</span><span class="p">)</span>    
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleSearch</span><span class="p">(</span><span class="n">cs_list</span><span class="p">,</span> <span class="n">ss_list</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="nf">simpleSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cluster_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">min_samples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
@@ -988,22 +1003,19 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 <span class="sd">        The len of each list must be the same. Each cluster_size must be &gt; 0 and min_samples must</span>
 <span class="sd">        be &gt;0 and &lt;= cluster_size.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cluster sizes and min_samples cannot be empty&#39;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cluster sizes and min_samples cannot be empty&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;Length of cluster sizes and samples sizes lists must match&quot;</span>
             <span class="p">)</span>
-
-        <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_sizes</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cluster sizes must be &gt; 1&#39;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_sizes</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cluster sizes must be &gt; 1&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)):</span>
             <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">cluster_sizes</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">min_samples</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cluster_sizes</span><span class="p">[</span><span class="n">x</span><span class="p">]):</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                     <span class="s2">&quot;min_cluster_size must be more than one and min_samples less than or equal to cluster size.&quot;</span>
-                <span class="p">)</span> 
+                <span class="p">)</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runTests</span><span class="p">(</span>
             <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_paramPair</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">ss</span><span class="p">)</span> <span class="k">for</span> <span class="n">cs</span><span class="p">,</span> <span class="n">ss</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)]</span>
         <span class="p">)</span>
@@ -1073,7 +1085,9 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
             <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embeddings</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>  <span class="c1"># Only TSNE is supported</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span>
-                <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span>
+                <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+                <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+                <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span><span class="p">,</span>
             <span class="p">)</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embeddings</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viz_reduction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">embedding_</span>
@@ -1089,13 +1103,13 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">embedding_</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">embedding_</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
 
     <span class="k">def</span> <span class="nf">visualizeEmbeddings</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> 
-        <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> 
-        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> 
-        <span class="n">markersize</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-        <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span>
+        <span class="bp">self</span><span class="p">,</span>
+        <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+        <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span>
+        <span class="n">markersize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+        <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.50</span><span class="p">,</span>
     <span class="p">):</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Visualize the embeddings, clustered according to the provided HDBSCAN parameters.</span>
@@ -1104,36 +1118,45 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 
 <span class="sd">        Returns a plotly fig object</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+            <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+        <span class="p">)</span>
 
         <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
         <span class="n">VizDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
         <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVizCoords</span><span class="p">()</span>
-        <span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
+        <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">):</span>
-          <span class="n">wrappedText</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">txt</span><span class="p">[:</span><span class="mi">400</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span> <span class="k">for</span> <span class="n">txt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">]</span>
-          <span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;wrappedText&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Topic #: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&lt;br&gt;&lt;br&gt;&quot;</span><span class="o">+</span><span class="n">text</span> <span class="k">for</span> <span class="n">topic</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">],</span> <span class="n">wrappedText</span><span class="p">)]</span>
-        <span class="k">else</span> <span class="p">:</span>
-          <span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;wrappedText&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Topic #: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">()]</span>
-
-        <span class="k">for</span> <span class="n">topiclabel</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]):</span> 
-          <span class="n">topicDF</span> <span class="o">=</span> <span class="n">VizDF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">topiclabel</span><span class="p">]</span>
-          <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
-            <span class="n">go</span><span class="o">.</span><span class="n">Scattergl</span><span class="p">(</span>
-              <span class="n">x</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
-              <span class="n">y</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
-              <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;markers&#39;</span><span class="p">,</span>
-              <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">topiclabel</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; (&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">topicDF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;)&quot;</span><span class="p">,</span>
-              <span class="n">text</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s1">&#39;wrappedText&#39;</span><span class="p">],</span>
-              <span class="n">hovertemplate</span> <span class="o">=</span> <span class="s2">&quot;%</span><span class="si">{text}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">,</span>
-          <span class="p">))</span>
-
-        <span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> 
-                                      <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">,))</span>
-        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">legend_title_text</span><span class="o">=</span><span class="s1">&#39;Topics&#39;</span><span class="p">)</span>
+            <span class="n">wrappedText</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">txt</span><span class="p">[:</span><span class="mi">400</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span> <span class="k">for</span> <span class="n">txt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">]</span>
+            <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;wrappedText&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;Topic #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;br&gt;&lt;br&gt;&quot;</span> <span class="o">+</span> <span class="n">text</span>
+                <span class="k">for</span> <span class="n">topic</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">],</span> <span class="n">wrappedText</span><span class="p">)</span>
+            <span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;wrappedText&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="s2">&quot;Topic #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">()</span>
+            <span class="p">]</span>
+        <span class="k">for</span> <span class="n">topiclabel</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]):</span>
+            <span class="n">topicDF</span> <span class="o">=</span> <span class="n">VizDF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">topiclabel</span><span class="p">]</span>
+            <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+                <span class="n">go</span><span class="o">.</span><span class="n">Scattergl</span><span class="p">(</span>
+                    <span class="n">x</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+                    <span class="n">y</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+                    <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                    <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">topiclabel</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topicDF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+                    <span class="n">text</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;wrappedText&quot;</span><span class="p">],</span>
+                    <span class="n">hovertemplate</span><span class="o">=</span><span class="s2">&quot;%</span><span class="si">{text}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+            <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+            <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+                <span class="n">size</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+                <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">legend_title_text</span><span class="o">=</span><span class="s2">&quot;Topics&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">fig</span>
-
 
     <span class="k">def</span> <span class="nf">_genRandomSearchParams</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">cluster_size_range</span><span class="p">,</span> <span class="n">min_samples_pct_range</span><span class="p">,</span> <span class="n">iters</span><span class="o">=</span><span class="mi">20</span>
@@ -1195,18 +1218,19 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
 
         <span class="k">return</span> <span class="n">RunResultsDF</span>
 
-    <span class="k">def</span> <span class="nf">_check_CS_SS</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">useBestParams</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">):</span>
-        <span class="k">if</span> <span class="n">min_cluster_size</span> <span class="o">==</span> <span class="kc">None</span> <span class="p">:</span>
-            <span class="k">if</span> <span class="n">useBestParams</span> <span class="ow">and</span> <span class="p">(</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span><span class="o">.</span><span class="n">cs</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">)</span> <span class="p">:</span>
-                <span class="n">min_cluster_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span><span class="o">.</span><span class="n">cs</span> 
+    <span class="k">def</span> <span class="nf">_check_CS_SS</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span><span class="p">,</span> <span class="n">useBestParams</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+    <span class="p">):</span>
+        <span class="k">if</span> <span class="n">min_cluster_size</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">useBestParams</span> <span class="ow">and</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span><span class="o">.</span><span class="n">cs</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">):</span>
+                <span class="n">min_cluster_size</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span><span class="o">.</span><span class="n">cs</span>
                 <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">__bestParams</span><span class="o">.</span><span class="n">ss</span>
-            <span class="k">else</span> <span class="p">:</span>
+            <span class="k">else</span><span class="p">:</span>
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cannot set min_cluster_size==None&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">min_cluster_size</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">min_samples</span> <span class="o">&gt;</span> <span class="n">min_cluster_size</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_samples must be equal or less than min_cluster_size&quot;</span><span class="p">)</span>                
-
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_samples must be equal or less than min_cluster_size&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span>
 </code></pre></div></td></tr></table></div>
         </details>
@@ -1239,7 +1263,7 @@ In the future this may be broken out for HDBSCAN tuning outside of BERTopic.</p>
   <div class="doc doc-contents ">
   
       <p>The best min_cluster_size and min_samples values. These are set
-by the user, not automatically. They are used in various places as 
+by the user, not automatically. They are used in various places as
 default values (if set).</p>
   </div>
 
@@ -1263,11 +1287,11 @@ default values (if set).</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">250</span>
-<span class="normal">251</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">251</span>
 <span class="normal">252</span>
 <span class="normal">253</span>
-<span class="normal">254</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearSearches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">254</span>
+<span class="normal">255</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">clearSearches</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A convenience function that resets the saved searches</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1294,8 +1318,7 @@ default values (if set).</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">256</span>
-<span class="normal">257</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">257</span>
 <span class="normal">258</span>
 <span class="normal">259</span>
 <span class="normal">260</span>
@@ -1311,7 +1334,10 @@ default values (if set).</p>
 <span class="normal">270</span>
 <span class="normal">271</span>
 <span class="normal">272</span>
-<span class="normal">273</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createVizReduction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;UMAP&quot;</span><span class="p">):</span>
+<span class="normal">273</span>
+<span class="normal">274</span>
+<span class="normal">275</span>
+<span class="normal">276</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">createVizReduction</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;UMAP&quot;</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1325,7 +1351,9 @@ default values (if set).</p>
         <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embeddings</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>  <span class="c1"># Only TSNE is supported</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span> <span class="o">=</span> <span class="n">TSNE</span><span class="p">(</span>
-            <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span>
+            <span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">__reducer_random_state</span><span class="p">,</span>
         <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">embeddings</span><span class="p">)</span>
     <span class="bp">self</span><span class="o">.</span><span class="n">viz_reduction</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">viz_reducer</span><span class="o">.</span><span class="n">embedding_</span>
@@ -1348,14 +1376,12 @@ default values (if set).</p>
   <div class="doc doc-contents ">
   
       <p>Exposed for convenience, returns a parameterized HDBSCAN model per
-the current version in BaseHDBSCANTuner (with the params other than 
+the current version in BaseHDBSCANTuner (with the params other than
 min_cluster_size and min_samples)</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">68</span>
-<span class="normal">69</span>
-<span class="normal">70</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">70</span>
 <span class="normal">71</span>
 <span class="normal">72</span>
 <span class="normal">73</span>
@@ -1371,14 +1397,20 @@ min_cluster_size and min_samples)</p>
 <span class="normal">83</span>
 <span class="normal">84</span>
 <span class="normal">85</span>
-<span class="normal">86</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getHDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">86</span>
+<span class="normal">87</span>
+<span class="normal">88</span>
+<span class="normal">89</span>
+<span class="normal">90</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getHDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Exposed for convenience, returns a parameterized HDBSCAN model per</span>
-<span class="sd">    the current version in BaseHDBSCANTuner (with the params other than </span>
+<span class="sd">    the current version in BaseHDBSCANTuner (with the params other than</span>
 <span class="sd">    min_cluster_size and min_samples)</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_model</span> <span class="o">==</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">hdbscan_params</span> <span class="o">=</span> <span class="n">deepcopy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">hdbscan_params</span><span class="p">)</span>
@@ -1412,15 +1444,15 @@ min_cluster_size and min_samples)</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">275</span>
-<span class="normal">276</span>
-<span class="normal">277</span>
-<span class="normal">278</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">278</span>
 <span class="normal">279</span>
 <span class="normal">280</span>
 <span class="normal">281</span>
 <span class="normal">282</span>
-<span class="normal">283</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getVizCoords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+<span class="normal">283</span>
+<span class="normal">284</span>
+<span class="normal">285</span>
+<span class="normal">286</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">getVizCoords</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns the X,Y coordinates for use in plotting a visualization of the embeddings.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -1452,12 +1484,7 @@ the search.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">158</span>
-<span class="normal">159</span>
-<span class="normal">160</span>
-<span class="normal">161</span>
-<span class="normal">162</span>
-<span class="normal">163</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">163</span>
 <span class="normal">164</span>
 <span class="normal">165</span>
 <span class="normal">166</span>
@@ -1469,24 +1496,27 @@ the search.</p>
 <span class="normal">172</span>
 <span class="normal">173</span>
 <span class="normal">174</span>
-<span class="normal">175</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">gridSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">searchRange</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="normal">175</span>
+<span class="normal">176</span>
+<span class="normal">177</span>
+<span class="normal">178</span>
+<span class="normal">179</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">gridSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">searchRange</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    For any n (int) in searchRange, generates all possible min_samples values (1 to n) and performs</span>
 <span class="sd">    the search.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cluster sizes must be &gt; 1&#39;</span><span class="p">)</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">searchRange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span>  <span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Search range cannot be empty&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cluster sizes must be &gt; 1&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">searchRange</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Search range cannot be empty&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
         <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
-
     <span class="n">cs_list</span><span class="p">,</span> <span class="n">ss_list</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
     <span class="k">for</span> <span class="n">cs_val</span> <span class="ow">in</span> <span class="n">searchRange</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">ss_val</span> <span class="ow">in</span> <span class="p">[</span><span class="o">*</span><span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="n">cs_val</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)]:</span>
             <span class="n">cs_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">cs_val</span><span class="p">)</span>
             <span class="n">ss_list</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ss_val</span><span class="p">)</span>
-    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleSearch</span><span class="p">(</span><span class="n">cs_list</span><span class="p">,</span> <span class="n">ss_list</span><span class="p">)</span>    
+    <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">simpleSearch</span><span class="p">(</span><span class="n">cs_list</span><span class="p">,</span> <span class="n">ss_list</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
       </details>
   </div>
@@ -1513,16 +1543,7 @@ for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of tho
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">133</span>
-<span class="normal">134</span>
-<span class="normal">135</span>
-<span class="normal">136</span>
-<span class="normal">137</span>
-<span class="normal">138</span>
-<span class="normal">139</span>
-<span class="normal">140</span>
-<span class="normal">141</span>
-<span class="normal">142</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">142</span>
 <span class="normal">143</span>
 <span class="normal">144</span>
 <span class="normal">145</span>
@@ -1536,7 +1557,12 @@ for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of tho
 <span class="normal">153</span>
 <span class="normal">154</span>
 <span class="normal">155</span>
-<span class="normal">156</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">pseudoGridSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cluster_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">min_samples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
+<span class="normal">156</span>
+<span class="normal">157</span>
+<span class="normal">158</span>
+<span class="normal">159</span>
+<span class="normal">160</span>
+<span class="normal">161</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">pseudoGridSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cluster_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">min_samples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Note that this is not a really a grid search. It will search for all cluster_sizes, but only</span>
 <span class="sd">    search for the percent values of those cluster sizes. For example if cluster_sizes were</span>
@@ -1545,19 +1571,15 @@ for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of tho
 <span class="sd">    for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of those for 10%, 20%, 30%,...100%).</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cluster sizes and min_samples cannot be empty&#39;</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cluster sizes and min_samples cannot be empty&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_sizes</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-            <span class="s2">&quot;min_cluster_size must be more than 1&quot;</span>
-        <span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">min_samples</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">:</span>
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;min_samples calculated as percent of cluster_size, must be less than or equal to 1&quot;</span>
-        <span class="p">)</span>
-
+            <span class="p">)</span>
     <span class="n">searchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genGridSearchParams</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runTests</span><span class="p">(</span><span class="n">searchParams</span><span class="p">)</span>
 </code></pre></div></td></tr></table></div>
@@ -1584,20 +1606,14 @@ values in decimal form e.g. [.1, .25, .50, .75, 1].</p>
 <p>This function will randomly select a min_cluster_size and a min_samples percent
 value from the supplied values. The min_samples percent will be used to calculate
 the min_samples parameter to be used. That value will be rounded up to 1 if less than 1
-and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and 
+and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and
 the random percent is .75 then the min_cluster_size=10 and min_samples=8.</p>
 <p>All of the search results will be added to ResultsDF and a separate DataFrame containing
 just the results from just this search will be returned by this method.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 99</span>
-<span class="normal">100</span>
-<span class="normal">101</span>
-<span class="normal">102</span>
-<span class="normal">103</span>
-<span class="normal">104</span>
-<span class="normal">105</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">105</span>
 <span class="normal">106</span>
 <span class="normal">107</span>
 <span class="normal">108</span>
@@ -1623,7 +1639,16 @@ just the results from just this search will be returned by this method.</p>
 <span class="normal">128</span>
 <span class="normal">129</span>
 <span class="normal">130</span>
-<span class="normal">131</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">randomSearch</span><span class="p">(</span>
+<span class="normal">131</span>
+<span class="normal">132</span>
+<span class="normal">133</span>
+<span class="normal">134</span>
+<span class="normal">135</span>
+<span class="normal">136</span>
+<span class="normal">137</span>
+<span class="normal">138</span>
+<span class="normal">139</span>
+<span class="normal">140</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">randomSearch</span><span class="p">(</span>
     <span class="bp">self</span><span class="p">,</span>
     <span class="n">cluster_size_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span>
     <span class="n">min_samples_pct_range</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">float</span><span class="p">],</span>
@@ -1637,21 +1662,24 @@ just the results from just this search will be returned by this method.</p>
 <span class="sd">    This function will randomly select a min_cluster_size and a min_samples percent</span>
 <span class="sd">    value from the supplied values. The min_samples percent will be used to calculate</span>
 <span class="sd">    the min_samples parameter to be used. That value will be rounded up to 1 if less than 1</span>
-<span class="sd">    and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and </span>
+<span class="sd">    and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and</span>
 <span class="sd">    the random percent is .75 then the min_cluster_size=10 and min_samples=8.</span>
 
 <span class="sd">    All of the search results will be added to ResultsDF and a separate DataFrame containing</span>
 <span class="sd">    just the results from just this search will be returned by this method.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_size_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples_pct_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cluster_size_range and min_samples_pct_range cannot be empty&#39;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_size_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples_pct_range</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;cluster_size_range and min_samples_pct_range cannot be empty&quot;</span>
+        <span class="p">)</span>
     <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_size_range</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;min_cluster_size must be more than 1&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="n">min_samples_pct_range</span><span class="p">:</span>
-        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span> <span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;min_samples calculated as percent of cluster_size, must be less than or equal to 1&#39;</span><span class="p">)</span>
-
+        <span class="k">if</span> <span class="n">x</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;min_samples calculated as percent of cluster_size, must be less than or equal to 1&quot;</span>
+            <span class="p">)</span>
     <span class="n">searchParams</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_genRandomSearchParams</span><span class="p">(</span>
         <span class="n">cluster_size_range</span><span class="p">,</span> <span class="n">min_samples_pct_range</span><span class="p">,</span> <span class="n">iters</span>
     <span class="p">)</span>
@@ -1680,22 +1708,26 @@ or equal to min_cluster_size.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">88</span>
-<span class="normal">89</span>
-<span class="normal">90</span>
-<span class="normal">91</span>
-<span class="normal">92</span>
-<span class="normal">93</span>
-<span class="normal">94</span>
-<span class="normal">95</span>
-<span class="normal">96</span>
-<span class="normal">97</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runHDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal"> 92</span>
+<span class="normal"> 93</span>
+<span class="normal"> 94</span>
+<span class="normal"> 95</span>
+<span class="normal"> 96</span>
+<span class="normal"> 97</span>
+<span class="normal"> 98</span>
+<span class="normal"> 99</span>
+<span class="normal">100</span>
+<span class="normal">101</span>
+<span class="normal">102</span>
+<span class="normal">103</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">runHDBSCAN</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Cluster the target embeddings (these will be the reduced embeddings when</span>
 <span class="sd">    run as a TMT instance. Per HDBSCAN, min_samples must be more than 0 and less than</span>
 <span class="sd">    or equal to min_cluster_size.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="p">)</span>
     <span class="n">hdbscan_model</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getHDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
     <span class="n">hdbscan_model</span><span class="o">.</span><span class="n">fit_predict</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">target_vectors</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">hdbscan_model</span><span class="o">.</span><span class="n">labels_</span>
@@ -1725,11 +1757,7 @@ be &gt;0 and &lt;= cluster_size.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">177</span>
-<span class="normal">178</span>
-<span class="normal">179</span>
-<span class="normal">180</span>
-<span class="normal">181</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">181</span>
 <span class="normal">182</span>
 <span class="normal">183</span>
 <span class="normal">184</span>
@@ -1751,7 +1779,8 @@ be &gt;0 and &lt;= cluster_size.</p>
 <span class="normal">200</span>
 <span class="normal">201</span>
 <span class="normal">202</span>
-<span class="normal">203</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">simpleSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cluster_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">min_samples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
+<span class="normal">203</span>
+<span class="normal">204</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">simpleSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cluster_sizes</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">],</span> <span class="n">min_samples</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">int</span><span class="p">]):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    A clustering for each value in cluster_sizes will be run using the corresponding min_samples</span>
 <span class="sd">    value. For example if cluster_sizes was [10, 10, 12, 18] and min_samples was [2, 8, 12, 9],</span>
@@ -1759,22 +1788,19 @@ be &gt;0 and &lt;= cluster_size.</p>
 <span class="sd">    The len of each list must be the same. Each cluster_size must be &gt; 0 and min_samples must</span>
 <span class="sd">    be &gt;0 and &lt;= cluster_size.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;cluster sizes and min_samples cannot be empty&#39;</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;cluster sizes and min_samples cannot be empty&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)</span> <span class="o">!=</span> <span class="nb">len</span><span class="p">(</span><span class="n">min_samples</span><span class="p">):</span>
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
             <span class="s2">&quot;Length of cluster sizes and samples sizes lists must match&quot;</span>
         <span class="p">)</span>
-
-    <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span><span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_sizes</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s1">&#39;Cluster sizes must be &gt; 1&#39;</span><span class="p">)</span>
-
+    <span class="k">if</span> <span class="p">[</span><span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">]</span> <span class="ow">in</span> <span class="n">cluster_sizes</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Cluster sizes must be &gt; 1&quot;</span><span class="p">)</span>
     <span class="k">for</span> <span class="n">x</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">)):</span>
         <span class="k">if</span> <span class="p">(</span><span class="ow">not</span> <span class="n">cluster_sizes</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span><span class="n">min_samples</span><span class="p">[</span><span class="n">x</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">cluster_sizes</span><span class="p">[</span><span class="n">x</span><span class="p">]):</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
                 <span class="s2">&quot;min_cluster_size must be more than one and min_samples less than or equal to cluster size.&quot;</span>
-            <span class="p">)</span> 
+            <span class="p">)</span>
     <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_runTests</span><span class="p">(</span>
         <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">_paramPair</span><span class="p">(</span><span class="n">cs</span><span class="p">,</span> <span class="n">ss</span><span class="p">)</span> <span class="k">for</span> <span class="n">cs</span><span class="p">,</span> <span class="n">ss</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">cluster_sizes</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)]</span>
     <span class="p">)</span>
@@ -1803,8 +1829,7 @@ searches run for this model.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">223</span>
-<span class="normal">224</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">224</span>
 <span class="normal">225</span>
 <span class="normal">226</span>
 <span class="normal">227</span>
@@ -1828,7 +1853,8 @@ searches run for this model.</p>
 <span class="normal">245</span>
 <span class="normal">246</span>
 <span class="normal">247</span>
-<span class="normal">248</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">summarizeResults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summaryDF</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">248</span>
+<span class="normal">249</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">summarizeResults</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">summaryDF</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Takes DataFrame of results and returns a DataFrame containing only one record for</span>
 <span class="sd">    each value of number of clusters. Returns the record with the lowest number of</span>
@@ -1879,10 +1905,7 @@ hover over each data point.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">285</span>
-<span class="normal">286</span>
-<span class="normal">287</span>
-<span class="normal">288</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">288</span>
 <span class="normal">289</span>
 <span class="normal">290</span>
 <span class="normal">291</span>
@@ -1923,14 +1946,27 @@ hover over each data point.</p>
 <span class="normal">326</span>
 <span class="normal">327</span>
 <span class="normal">328</span>
-<span class="normal">329</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">visualizeEmbeddings</span><span class="p">(</span>
-    <span class="bp">self</span><span class="p">,</span> 
-    <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-    <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> 
-    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> 
-    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> 
-    <span class="n">markersize</span><span class="p">:</span> <span class="nb">int</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-    <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span><span class="o">=</span><span class="mf">0.50</span><span class="p">,</span>
+<span class="normal">329</span>
+<span class="normal">330</span>
+<span class="normal">331</span>
+<span class="normal">332</span>
+<span class="normal">333</span>
+<span class="normal">334</span>
+<span class="normal">335</span>
+<span class="normal">336</span>
+<span class="normal">337</span>
+<span class="normal">338</span>
+<span class="normal">339</span>
+<span class="normal">340</span>
+<span class="normal">341</span>
+<span class="normal">342</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">visualizeEmbeddings</span><span class="p">(</span>
+    <span class="bp">self</span><span class="p">,</span>
+    <span class="n">min_cluster_size</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">min_samples</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
+    <span class="n">width</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span>
+    <span class="n">height</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">800</span><span class="p">,</span>
+    <span class="n">markersize</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">5</span><span class="p">,</span>
+    <span class="n">opacity</span><span class="p">:</span> <span class="nb">float</span> <span class="o">=</span> <span class="mf">0.50</span><span class="p">,</span>
 <span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Visualize the embeddings, clustered according to the provided HDBSCAN parameters.</span>
@@ -1939,33 +1975,43 @@ hover over each data point.</p>
 
 <span class="sd">    Returns a plotly fig object</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span><span class="p">)</span>
+    <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_check_CS_SS</span><span class="p">(</span>
+        <span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">,</span> <span class="kc">True</span>
+    <span class="p">)</span>
 
     <span class="n">fig</span> <span class="o">=</span> <span class="n">go</span><span class="o">.</span><span class="n">Figure</span><span class="p">()</span>
     <span class="n">VizDF</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
     <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span> <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">getVizCoords</span><span class="p">()</span>
-    <span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
+    <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">(</span><span class="n">min_cluster_size</span><span class="p">,</span> <span class="n">min_samples</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">np</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">docs</span> <span class="o">!=</span> <span class="kc">None</span><span class="p">):</span>
-      <span class="n">wrappedText</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">txt</span><span class="p">[:</span><span class="mi">400</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span> <span class="k">for</span> <span class="n">txt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">]</span>
-      <span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;wrappedText&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Topic #: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot;&lt;br&gt;&lt;br&gt;&quot;</span><span class="o">+</span><span class="n">text</span> <span class="k">for</span> <span class="n">topic</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">],</span> <span class="n">wrappedText</span><span class="p">)]</span>
-    <span class="k">else</span> <span class="p">:</span>
-      <span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;wrappedText&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Topic #: &quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">()]</span>
-
-    <span class="k">for</span> <span class="n">topiclabel</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]):</span> 
-      <span class="n">topicDF</span> <span class="o">=</span> <span class="n">VizDF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">VizDF</span><span class="p">[</span><span class="s1">&#39;topics&#39;</span><span class="p">]</span><span class="o">==</span><span class="n">topiclabel</span><span class="p">]</span>
-      <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
-        <span class="n">go</span><span class="o">.</span><span class="n">Scattergl</span><span class="p">(</span>
-          <span class="n">x</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
-          <span class="n">y</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
-          <span class="n">mode</span><span class="o">=</span><span class="s1">&#39;markers&#39;</span><span class="p">,</span>
-          <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">topiclabel</span><span class="p">)</span><span class="o">+</span><span class="s2">&quot; (&quot;</span><span class="o">+</span><span class="nb">str</span><span class="p">(</span><span class="n">topicDF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span><span class="o">+</span><span class="s2">&quot;)&quot;</span><span class="p">,</span>
-          <span class="n">text</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s1">&#39;wrappedText&#39;</span><span class="p">],</span>
-          <span class="n">hovertemplate</span> <span class="o">=</span> <span class="s2">&quot;%</span><span class="si">{text}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">,</span>
-      <span class="p">))</span>
-
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span><span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span><span class="n">size</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span> 
-                                  <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">,))</span>
-    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">legend_title_text</span><span class="o">=</span><span class="s1">&#39;Topics&#39;</span><span class="p">)</span>
+        <span class="n">wrappedText</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;&lt;br&gt;&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">wrap</span><span class="p">(</span><span class="n">txt</span><span class="p">[:</span><span class="mi">400</span><span class="p">],</span> <span class="n">width</span><span class="o">=</span><span class="mi">60</span><span class="p">))</span> <span class="k">for</span> <span class="n">txt</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">docs</span><span class="p">]</span>
+        <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;wrappedText&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Topic #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot;&lt;br&gt;&lt;br&gt;&quot;</span> <span class="o">+</span> <span class="n">text</span>
+            <span class="k">for</span> <span class="n">topic</span><span class="p">,</span> <span class="n">text</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">],</span> <span class="n">wrappedText</span><span class="p">)</span>
+        <span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;wrappedText&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="s2">&quot;Topic #: &quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topic</span><span class="p">)</span> <span class="k">for</span> <span class="n">topic</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">runHDBSCAN</span><span class="p">()</span>
+        <span class="p">]</span>
+    <span class="k">for</span> <span class="n">topiclabel</span> <span class="ow">in</span> <span class="nb">set</span><span class="p">(</span><span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]):</span>
+        <span class="n">topicDF</span> <span class="o">=</span> <span class="n">VizDF</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">VizDF</span><span class="p">[</span><span class="s2">&quot;topics&quot;</span><span class="p">]</span> <span class="o">==</span> <span class="n">topiclabel</span><span class="p">]</span>
+        <span class="n">fig</span><span class="o">.</span><span class="n">add_trace</span><span class="p">(</span>
+            <span class="n">go</span><span class="o">.</span><span class="n">Scattergl</span><span class="p">(</span>
+                <span class="n">x</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;x&quot;</span><span class="p">],</span>
+                <span class="n">y</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;y&quot;</span><span class="p">],</span>
+                <span class="n">mode</span><span class="o">=</span><span class="s2">&quot;markers&quot;</span><span class="p">,</span>
+                <span class="n">name</span><span class="o">=</span><span class="nb">str</span><span class="p">(</span><span class="n">topiclabel</span><span class="p">)</span> <span class="o">+</span> <span class="s2">&quot; (&quot;</span> <span class="o">+</span> <span class="nb">str</span><span class="p">(</span><span class="n">topicDF</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="o">+</span> <span class="s2">&quot;)&quot;</span><span class="p">,</span>
+                <span class="n">text</span><span class="o">=</span><span class="n">topicDF</span><span class="p">[</span><span class="s2">&quot;wrappedText&quot;</span><span class="p">],</span>
+                <span class="n">hovertemplate</span><span class="o">=</span><span class="s2">&quot;%</span><span class="si">{text}</span><span class="s2">&lt;extra&gt;&lt;/extra&gt;&quot;</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_traces</span><span class="p">(</span>
+        <span class="n">marker</span><span class="o">=</span><span class="nb">dict</span><span class="p">(</span>
+            <span class="n">size</span><span class="o">=</span><span class="n">markersize</span><span class="p">,</span>
+            <span class="n">opacity</span><span class="o">=</span><span class="n">opacity</span><span class="p">,</span>
+        <span class="p">)</span>
+    <span class="p">)</span>
+    <span class="n">fig</span><span class="o">.</span><span class="n">update_layout</span><span class="p">(</span><span class="n">width</span><span class="o">=</span><span class="n">width</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="n">height</span><span class="p">,</span> <span class="n">legend_title_text</span><span class="o">=</span><span class="s2">&quot;Topics&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="n">fig</span>
 </code></pre></div></td></tr></table></div>
@@ -1990,8 +2036,7 @@ hover over each data point.</p>
 
       <details class="quote">
         <summary>Source code in <code>TopicTuner\basetuner.py</code></summary>
-        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">205</span>
-<span class="normal">206</span>
+        <div class="codehilite"><table class="codehilitetable"><tr><td class="linenos"><div class="linenodiv"><pre><span></span><span class="normal">206</span>
 <span class="normal">207</span>
 <span class="normal">208</span>
 <span class="normal">209</span>
@@ -2006,7 +2051,8 @@ hover over each data point.</p>
 <span class="normal">218</span>
 <span class="normal">219</span>
 <span class="normal">220</span>
-<span class="normal">221</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">visualizeSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resultsDF</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
+<span class="normal">221</span>
+<span class="normal">222</span></pre></div></td><td class="code"><div><pre><span></span><code><span class="k">def</span> <span class="nf">visualizeSearch</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">resultsDF</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span> <span class="o">=</span> <span class="kc">None</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Returns a plotly fig of a parrallel coordinates graph of the searches performed on this instance.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
