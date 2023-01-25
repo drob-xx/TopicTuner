@@ -131,7 +131,7 @@ class BaseHDBSCANTuner(object):
         and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and 
         the random percent is .75 then the min_cluster_size=10 and min_samples=8.
 
-        All of the search results will be added to TMT.ResultsDF and a separate DataFrame containing
+        All of the search results will be added to ResultsDF and a separate DataFrame containing
         just the results from just this search will be returned by this method.
         """
         
@@ -277,7 +277,7 @@ class BaseHDBSCANTuner(object):
         """
         if not np.all(self.embeddings):
             raise AttributeError(
-                "No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()"
+                "No embeddings, either set embeddings= or call createEmbeddings()"
             )
         if method == "UMAP":
             self.viz_reducer = deepcopy(self.reducer_model)
@@ -305,7 +305,7 @@ class BaseHDBSCANTuner(object):
     ):
         """
         Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
-        If TMT.docs has been set then the first 400 chars of each document will be shown as a
+        If docs has been set then the first 400 chars of each document will be shown as a
         hover over each data point.
 
         Returns a plotly fig object
@@ -399,12 +399,12 @@ class TopicModelTuner(BaseHDBSCANTuner):
     TopicModelTuner (TMT) is a class facilitate the interactive optimization of HDBSCAN's
     min_clust_size and min_sample parameters in the context BERTopic.
 
-    The convenience function TMT.wrapBERTopicModel() returns a TMT instance initialized
+    The convenience function wrapBERTopicModel() returns a TMT instance initialized
     with the provided BERTopic model's embedding model, HDBSCAN and UMAP instances and
     parameters.
 
     Alternatively a new TMT instance can be created from scratch and, in either case,
-    once the optimized parameters have been identified, calling TMT.getBERTopicModel()
+    once the optimized parameters have been identified, calling getBERTopicModel()
     returns a configured BERTopic instance with the desired parameters.
 
     TMT is a subclass of BaseHDBSCANTuner. BaseHDBSCANTuner provides the basic HDBSCAN related
@@ -442,9 +442,9 @@ class TopicModelTuner(BaseHDBSCANTuner):
         
         Options include:
         
-        - Using your own embeddings by setting TMT.embeddings after creating an instance
-        - Using different UMAP settings or a different dimensional reduction method by setting TMT.reducer_model
-        - Using different HDBSCAN parameters by setting TMT.hdbscan_model
+        - Using your own embeddings by setting embeddings after creating an instance
+        - Using different UMAP settings or a different dimensional reduction method by setting reducer_model
+        - Using different HDBSCAN parameters by setting hdbscan_model
         
         These can be set in the constructor or after instantiation by setting the instance variables 
         before generating the embeddings or reduction.
@@ -561,7 +561,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         # if self.embeddings != None :
         if np.any(self.embeddings):
             raise AttributeError(
-                "Embeddings already created, reset by setting TMT.embeddings=None"
+                "Embeddings already created, reset by setting embeddings=None"
             )
         if (np.all(self.docs == None)) and (np.all(docs == None)):
             raise AttributeError("Docs not specified, set docs=")
@@ -577,7 +577,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         """
         if not np.any(self.embeddings):
             raise AttributeError(
-                "No embeddings set, call TMT.createEmbeddings() or set TMT.embeddings="
+                "No embeddings set, call createEmbeddings() or set embeddings="
             )
         self.reducer_model.fit(self.embeddings)
         self.target_vectors = self.reducer_model.embedding_
@@ -588,7 +588,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         """
         if not np.all(self.embeddings):
             raise AttributeError(
-                "No embeddings, either set TMT.embeddings= or call TMT.createEmbeddings()"
+                "No embeddings, either set embeddings= or call createEmbeddings()"
             )
         if method == "UMAP":
             self.viz_reducer = deepcopy(self.reducer_model)
@@ -625,7 +625,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
     ):
         """
         Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
-        If TMT.docs has been set then the first 400 chars of each document will be shown as a
+        If docs has been set then the first 400 chars of each document will be shown as a
         hover over each data point.
 
         Returns a plotly fig object
