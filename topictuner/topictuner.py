@@ -1,20 +1,17 @@
 from collections import namedtuple
 from copy import copy, deepcopy
 from random import randrange
-from textwrap import wrap
 from typing import List
 
 import joblib
 import numpy as np
-import pandas as pd
-import plotly.graph_objects as go
-import plotly.express as px
 from bertopic import BERTopic
 from hdbscan import HDBSCAN
 from sentence_transformers import SentenceTransformer
 from sklearn.manifold import TSNE
-from tqdm.notebook import tqdm
 from umap import UMAP
+
+from topictuner import BaseHDBSCANTuner
 
 paramPair = namedtuple("paramPair", "cs ss")
 
