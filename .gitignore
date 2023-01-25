@@ -25,3 +25,5 @@ topicmodeltuner.egg-info/requires.txt
 topicmodeltuner.egg-info/PKG-INFO
 topicmodeltuner.egg-info/SOURCES.txt
 topicmodeltuner.egg-info/top_level.txt
+/build/
+/dist/
