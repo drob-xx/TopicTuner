@@ -15,6 +15,7 @@ from topictuner import BaseHDBSCANTuner
 
 paramPair = namedtuple("paramPair", "cs ss")
 
+
 class TopicModelTuner(BaseHDBSCANTuner):
     """
     TopicModelTuner (TMT) is a class facilitate the interactive optimization of HDBSCAN's
@@ -40,36 +41,34 @@ class TopicModelTuner(BaseHDBSCANTuner):
         self,
         embeddings: np.ndarray = None,
         embedding_model=None,
-        docs: List[
-            str
-        ] = None,  
-        reducer_model=None,  
+        docs: List[str] = None,
+        reducer_model=None,
         reducer_random_state=None,
-        reducer_components: int=5,
+        reducer_components: int = 5,
         reduced_embeddings=None,
-        hdbscan_model=None,  
+        hdbscan_model=None,
         viz_reduction=None,
         viz_reducer=None,
-        verbose: int = 0, 
-    ):  
+        verbose: int = 0,
+    ):
         """
-        Unless explicitly set, TMT Uses the same default param defaults for the embedding model 
-        as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults. 
-        
+        Unless explicitly set, TMT Uses the same default param defaults for the embedding model
+        as well as HDBSCAN and UMAP parameters as are used in the BERTopic defaults.
+
         - 'all-MiniLM-L6-v2' sentence transformer as the default language model embedding.
         - UMAP - metric='cosine', n_neighbors=5, min_dist=0.0
         - HDBSCAN - metric='euclidean', cluster_selection_method='eom', prediction_data=True,
                     min_cluster_size = 10.
-        
+
         Options include:
-        
+
         - Using your own embeddings by setting embeddings after creating an instance
         - Using different UMAP settings or a different dimensional reduction method by setting reducer_model
         - Using different HDBSCAN parameters by setting hdbscan_model
-        
-        These can be set in the constructor or after instantiation by setting the instance variables 
+
+        These can be set in the constructor or after instantiation by setting the instance variables
         before generating the embeddings or reduction.
-        
+
         Unlike BERTopic, TMT has an option for saving both embeddings and the doc corpus - or optionally
         omitting them.
         """
@@ -77,7 +76,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         BaseHDBSCANTuner.__init__(
             self,
             hdbscan_model=hdbscan_model,
-            target_vectors=reduced_embeddings,  
+            target_vectors=reduced_embeddings,
             viz_reduction=viz_reduction,
             verbose=verbose,
         )
@@ -99,18 +98,13 @@ class TopicModelTuner(BaseHDBSCANTuner):
             self.embedding_model = SentenceTransformer("all-MiniLM-L6-v2")
         else:
             self.embedding_model = embedding_model
-
-        self.reducer_model = (
-            reducer_model  
-        )        
+        self.reducer_model = reducer_model
 
         if reducer_random_state != None:
             self.__reducer_random_state = np.uint64(reducer_random_state)
         else:
             self.__reducer_random_state = np.uint64(randrange(1000000))
-
-        
-        if self.reducer_model == None:  
+        if self.reducer_model == None:
             # Use default BERTopic params
             self.reducer_model = UMAP(
                 n_components=self.reducer_components,
@@ -124,12 +118,14 @@ class TopicModelTuner(BaseHDBSCANTuner):
     @property
     def reducer_random_state(self):
         return self.__reducer_random_state
-    
+
     @reducer_random_state.setter
-    def reducer_random_state(self, rv : np.uint64):
-        if self.reducer_model != None :
-            self.__reducer_random_state = rv 
-            self.reducer_model.random_state = np.uint64(rv)  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
+    def reducer_random_state(self, rv: np.uint64):
+        if self.reducer_model != None:
+            self.__reducer_random_state = rv
+            self.reducer_model.random_state = np.uint64(
+                rv
+            )  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
 
     @staticmethod
     def wrapBERTopicModel(BERTopicModel: BERTopic):
@@ -158,7 +154,9 @@ class TopicModelTuner(BaseHDBSCANTuner):
         as was used in the TMT model.
         """
 
-        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
+        min_cluster_size, min_samples = self._check_CS_SS(
+            min_cluster_size, min_samples, True
+        )
 
         hdbscan_params = copy(self.hdbscan_params)
         hdbscan_params["min_cluster_size"] = min_cluster_size
@@ -167,12 +165,12 @@ class TopicModelTuner(BaseHDBSCANTuner):
         hdbscan_model = HDBSCAN(**hdbscan_params)
 
         reducer_model = deepcopy(self.reducer_model)
-        reducer_model.random_state = self.reducer_random_state 
+        reducer_model.random_state = self.reducer_random_state
 
         return BERTopic(
-            umap_model=reducer_model, 
+            umap_model=reducer_model,
             hdbscan_model=hdbscan_model,
-            embedding_model=self.embedding_model,            
+            embedding_model=self.embedding_model,
         )
 
     def createEmbeddings(self, docs: List[str] = None):
@@ -186,10 +184,8 @@ class TopicModelTuner(BaseHDBSCANTuner):
             )
         if (np.all(self.docs == None)) and (np.all(docs == None)):
             raise AttributeError("Docs not specified, set docs=")
-        
-        if np.all(docs)!=None:
+        if np.all(docs) != None:
             self.docs = docs
-
         self.embeddings = self.embedding_model.encode(self.docs)
 
     def reduce(self):
@@ -229,7 +225,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
         Returns the X,Y coordinates for use in plotting a visualization of the embeddings.
         """
         if not np.any(self.viz_reduction):
-        # if self.viz_reduction == None:
+            # if self.viz_reduction == None:
             raise AttributeError(
                 "Visualization reduction not performed, call createVizReduction first"
             )

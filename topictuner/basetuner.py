@@ -13,11 +13,13 @@ from tqdm.notebook import tqdm
 
 paramPair = namedtuple("paramPair", "cs ss")
 
+
 class BaseHDBSCANTuner(object):
     """
     A base class with the HDBSCAN functionality without any references to BERTopic.
     In the future this may be broken out for HDBSCAN tuning outside of BERTopic.
     """
+
     def __init__(
         self,
         hdbscan_model=None,  #: an HDBSCAN instance
@@ -26,15 +28,15 @@ class BaseHDBSCANTuner(object):
         verbose: int = 0,
     ):
         self.hdbscan_model = hdbscan_model
-        self.target_vectors = target_vectors 
+        self.target_vectors = target_vectors
         self.verbose = verbose
         self.hdbscan_params = {}
         self.ResultsDF = None  # A running collection of all the parameters and results if a DataFrame
         self.viz_reduction = viz_reduction
-        
-        self._paramPair = paramPair # a type 
+
+        self._paramPair = paramPair  # a type
         self.__bestParams = paramPair(None, None)
-        
+
         if self.hdbscan_model == None:
             self.hdbscan_params = {  # default BERTopic Params
                 "metric": "euclidean",
@@ -44,7 +46,7 @@ class BaseHDBSCANTuner(object):
             }
         else:
             self.hdbscan_params = None
-            
+
     """
     Placeholder
     """
@@ -53,14 +55,14 @@ class BaseHDBSCANTuner(object):
     def bestParams(self):
         """
         The best min_cluster_size and min_samples values. These are set
-        by the user, not automatically. They are used in various places as 
+        by the user, not automatically. They are used in various places as
         default values (if set).
         """
         return self.__bestParams
-    
+
     @bestParams.setter
     def bestParams(self, params):
-        if not ((type(params) == tuple) or (type(params) == paramPair)) :
+        if not ((type(params) == tuple) or (type(params) == paramPair)):
             raise ValueError("bestParams must be a tuple or parampair")
         self._check_CS_SS(params[0], params[1])
         self.__bestParams = paramPair(params[0], params[1])
@@ -68,11 +70,13 @@ class BaseHDBSCANTuner(object):
     def getHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None):
         """
         Exposed for convenience, returns a parameterized HDBSCAN model per
-        the current version in BaseHDBSCANTuner (with the params other than 
+        the current version in BaseHDBSCANTuner (with the params other than
         min_cluster_size and min_samples)
         """
-        
-        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
+
+        min_cluster_size, min_samples = self._check_CS_SS(
+            min_cluster_size, min_samples, True
+        )
 
         if self.hdbscan_model == None:
             hdbscan_params = deepcopy(self.hdbscan_params)
@@ -91,7 +95,9 @@ class BaseHDBSCANTuner(object):
         run as a TMT instance. Per HDBSCAN, min_samples must be more than 0 and less than
         or equal to min_cluster_size.
         """
-        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
+        min_cluster_size, min_samples = self._check_CS_SS(
+            min_cluster_size, min_samples, True
+        )
         hdbscan_model = self.getHDBSCAN(min_cluster_size, min_samples)
         hdbscan_model.fit_predict(self.target_vectors)
         return hdbscan_model.labels_
@@ -110,21 +116,24 @@ class BaseHDBSCANTuner(object):
         This function will randomly select a min_cluster_size and a min_samples percent
         value from the supplied values. The min_samples percent will be used to calculate
         the min_samples parameter to be used. That value will be rounded up to 1 if less than 1
-        and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and 
+        and cannot be larger than the selected cluster_size. So if the random cluster size is 10 and
         the random percent is .75 then the min_cluster_size=10 and min_samples=8.
 
         All of the search results will be added to ResultsDF and a separate DataFrame containing
         just the results from just this search will be returned by this method.
         """
-        
-        if len(cluster_size_range) == 0 or len(min_samples_pct_range) == 0 :
-            raise ValueError('cluster_size_range and min_samples_pct_range cannot be empty')
+
+        if len(cluster_size_range) == 0 or len(min_samples_pct_range) == 0:
+            raise ValueError(
+                "cluster_size_range and min_samples_pct_range cannot be empty"
+            )
         if [0, 1] in cluster_size_range:
             raise ValueError("min_cluster_size must be more than 1")
         for x in min_samples_pct_range:
-            if x > 1 :
-                raise ValueError('min_samples calculated as percent of cluster_size, must be less than or equal to 1')
-
+            if x > 1:
+                raise ValueError(
+                    "min_samples calculated as percent of cluster_size, must be less than or equal to 1"
+                )
         searchParams = self._genRandomSearchParams(
             cluster_size_range, min_samples_pct_range, iters
         )
@@ -138,20 +147,16 @@ class BaseHDBSCANTuner(object):
         each percentage value in min_samples for each value in cluster_sizes would be run
         for a total of 20 clusterings (cluster sizes 100 and 101 * percent values of those for 10%, 20%, 30%,...100%).
         """
-        
-        if len(cluster_sizes) == 0 or len(min_samples) == 0 :
-            raise ValueError('cluster sizes and min_samples cannot be empty')
-        
+
+        if len(cluster_sizes) == 0 or len(min_samples) == 0:
+            raise ValueError("cluster sizes and min_samples cannot be empty")
         if [0, 1] in cluster_sizes:
-            raise ValueError(
-                "min_cluster_size must be more than 1"
-            )
+            raise ValueError("min_cluster_size must be more than 1")
         for x in min_samples:
-            if x > 1 :
+            if x > 1:
                 raise ValueError(
                     "min_samples calculated as percent of cluster_size, must be less than or equal to 1"
-            )
-
+                )
         searchParams = self._genGridSearchParams(cluster_sizes, min_samples)
         return self._runTests(searchParams)
 
@@ -160,20 +165,19 @@ class BaseHDBSCANTuner(object):
         For any n (int) in searchRange, generates all possible min_samples values (1 to n) and performs
         the search.
         """
-        if [0,1] in searchRange:
-            raise ValueError('Cluster sizes must be > 1')
-        if len(searchRange) == 0  :
-            raise ValueError('Search range cannot be empty')
+        if [0, 1] in searchRange:
+            raise ValueError("Cluster sizes must be > 1")
+        if len(searchRange) == 0:
+            raise ValueError("Search range cannot be empty")
         if [0, 1] in searchRange:
             ValueError("min_cluster_size must be more than 1")
-
         cs_list, ss_list = [], []
         for cs_val in searchRange:
             for ss_val in [*range(1, cs_val + 1)]:
                 cs_list.append(cs_val)
                 ss_list.append(ss_val)
-        return self.simpleSearch(cs_list, ss_list)    
-    
+        return self.simpleSearch(cs_list, ss_list)
+
     def simpleSearch(self, cluster_sizes: List[int], min_samples: List[int]):
         """
         A clustering for each value in cluster_sizes will be run using the corresponding min_samples
@@ -182,22 +186,19 @@ class BaseHDBSCANTuner(object):
         The len of each list must be the same. Each cluster_size must be > 0 and min_samples must
         be >0 and <= cluster_size.
         """
-        if len(cluster_sizes) == 0 or len(min_samples) == 0 :
-            raise ValueError('cluster sizes and min_samples cannot be empty')
-        
+        if len(cluster_sizes) == 0 or len(min_samples) == 0:
+            raise ValueError("cluster sizes and min_samples cannot be empty")
         if len(cluster_sizes) != len(min_samples):
             raise ValueError(
                 "Length of cluster sizes and samples sizes lists must match"
             )
-        
-        if [0,1] in cluster_sizes:
-            raise ValueError('Cluster sizes must be > 1')
-        
+        if [0, 1] in cluster_sizes:
+            raise ValueError("Cluster sizes must be > 1")
         for x in range(len(cluster_sizes)):
             if (not cluster_sizes[x] > 1) or (min_samples[x] > cluster_sizes[x]):
                 raise ValueError(
                     "min_cluster_size must be more than one and min_samples less than or equal to cluster size."
-                ) 
+                )
         return self._runTests(
             [self._paramPair(cs, ss) for cs, ss in zip(cluster_sizes, min_samples)]
         )
@@ -267,7 +268,9 @@ class BaseHDBSCANTuner(object):
             self.viz_reducer.fit(self.embeddings)
         else:  # Only TSNE is supported
             self.viz_reducer = TSNE(
-                n_components=2, verbose=self.verbose, random_state=self.__reducer_random_state
+                n_components=2,
+                verbose=self.verbose,
+                random_state=self.__reducer_random_state,
             )
             self.viz_reducer.fit(self.embeddings)
         self.viz_reduction = self.viz_reducer.embedding_
@@ -283,13 +286,13 @@ class BaseHDBSCANTuner(object):
         return self.viz_reducer.embedding_[:, 0], self.viz_reducer.embedding_[:, 1]
 
     def visualizeEmbeddings(
-        self, 
-        min_cluster_size: int = None, 
-        min_samples: int = None, 
-        width: int=800, 
-        height: int=800, 
-        markersize: int=5,
-        opacity: float=0.50,
+        self,
+        min_cluster_size: int = None,
+        min_samples: int = None,
+        width: int = 800,
+        height: int = 800,
+        markersize: int = 5,
+        opacity: float = 0.50,
     ):
         """
         Visualize the embeddings, clustered according to the provided HDBSCAN parameters.
@@ -298,36 +301,45 @@ class BaseHDBSCANTuner(object):
 
         Returns a plotly fig object
         """
-        min_cluster_size, min_samples = self._check_CS_SS(min_cluster_size, min_samples, True)
+        min_cluster_size, min_samples = self._check_CS_SS(
+            min_cluster_size, min_samples, True
+        )
 
         fig = go.Figure()
         VizDF = pd.DataFrame()
         VizDF["x"], VizDF["y"] = self.getVizCoords()
-        VizDF['topics'] = self.runHDBSCAN(min_cluster_size, min_samples)
+        VizDF["topics"] = self.runHDBSCAN(min_cluster_size, min_samples)
         if np.any(self.docs != None):
-          wrappedText = ["<br>".join(wrap(txt[:400], width=60)) for txt in self.docs]
-          VizDF['wrappedText'] = ["Topic #: "+str(topic)+"<br><br>"+text for topic, text in zip(VizDF['topics'], wrappedText)]
-        else :
-          VizDF['wrappedText'] = ["Topic #: "+str(topic) for topic in self.runHDBSCAN()]
-        
-        for topiclabel in set(VizDF['topics']): 
-          topicDF = VizDF.loc[VizDF['topics']==topiclabel]
-          fig.add_trace(
-            go.Scattergl(
-              x=topicDF["x"],
-              y=topicDF["y"],
-              mode='markers',
-              name=str(topiclabel)+" ("+str(topicDF.shape[0])+")",
-              text=topicDF['wrappedText'],
-              hovertemplate = "%{text}<extra></extra>",
-          ))
-        
-        fig.update_traces(marker=dict(size=markersize, 
-                                      opacity=opacity,))
-        fig.update_layout(width=width, height=height, legend_title_text='Topics')
-        
-        return fig
+            wrappedText = ["<br>".join(wrap(txt[:400], width=60)) for txt in self.docs]
+            VizDF["wrappedText"] = [
+                "Topic #: " + str(topic) + "<br><br>" + text
+                for topic, text in zip(VizDF["topics"], wrappedText)
+            ]
+        else:
+            VizDF["wrappedText"] = [
+                "Topic #: " + str(topic) for topic in self.runHDBSCAN()
+            ]
+        for topiclabel in set(VizDF["topics"]):
+            topicDF = VizDF.loc[VizDF["topics"] == topiclabel]
+            fig.add_trace(
+                go.Scattergl(
+                    x=topicDF["x"],
+                    y=topicDF["y"],
+                    mode="markers",
+                    name=str(topiclabel) + " (" + str(topicDF.shape[0]) + ")",
+                    text=topicDF["wrappedText"],
+                    hovertemplate="%{text}<extra></extra>",
+                )
+            )
+        fig.update_traces(
+            marker=dict(
+                size=markersize,
+                opacity=opacity,
+            )
+        )
+        fig.update_layout(width=width, height=height, legend_title_text="Topics")
 
+        return fig
 
     def _genRandomSearchParams(
         self, cluster_size_range, min_samples_pct_range, iters=20
@@ -389,18 +401,17 @@ class BaseHDBSCANTuner(object):
 
         return RunResultsDF
 
-    def _check_CS_SS(self, min_cluster_size: int, min_samples: int, useBestParams: bool = False):
-        if min_cluster_size == None :
-            if useBestParams and ( self.__bestParams.cs != None) :
-                min_cluster_size = self.__bestParams.cs 
+    def _check_CS_SS(
+        self, min_cluster_size: int, min_samples: int, useBestParams: bool = False
+    ):
+        if min_cluster_size == None:
+            if useBestParams and (self.__bestParams.cs != None):
+                min_cluster_size = self.__bestParams.cs
                 min_samples = self.__bestParams.ss
-            else :
+            else:
                 raise ValueError("Cannot set min_cluster_size==None")
         if min_cluster_size == 1:
             raise ValueError("min_cluster_size must be more than 1")
         if min_samples > min_cluster_size:
-            raise ValueError("min_samples must be equal or less than min_cluster_size")                
-
+            raise ValueError("min_samples must be equal or less than min_cluster_size")
         return min_cluster_size, min_samples
-
-
