@@ -1,11 +1,11 @@
 from loguru import logger
-from topictuner.topictuner import TopicModelTuner
 from topictuner.basetuner import BaseHDBSCANTuner
+from topictuner.topictuner import TopicModelTuner
 try:
     from topictuner.cuml_topictuner import cumlTopicModelTuner
 except ImportError:
     logger.info('cuML not present - cumlTopicModelTuner not avaialable')
 
-__version__ = '0.2.2'
+__version__ = '0.2.4'
 
-__all__ = ['TopicModelTuner']
+__all__ = ['TopicModelTuner', 'BaseHDBSCANTuner', 'cumlTopicModelTuner']

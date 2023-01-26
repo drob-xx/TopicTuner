@@ -184,7 +184,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
             )
         if (np.all(self.docs == None)) and (np.all(docs == None)):
             raise AttributeError("Docs not specified, set docs=")
-        if np.all(docs) != None:
+        if np.all(docs != None):
             self.docs = docs
         self.embeddings = self.embedding_model.encode(self.docs)
 
