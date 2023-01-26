@@ -6,6 +6,6 @@ try:
 except ImportError:
     logger.info('cuML not present - cumlTopicModelTuner not avaialable')
 
-__version__ = '0.3'
+__version__ = '0.3.1'
 
 __all__ = ['TopicModelTuner', 'BaseHDBSCANTuner', 'cumlTopicModelTuner']
