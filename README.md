@@ -17,4 +17,4 @@ TopicTuner provides a TopicModelTuner class&#8201;&#8212;&#8201;a convenience wr
 - Two way Import/Export functionality so that you can start from scratch, or with an existing BERTopic model and export a BERTopic model with optimized parameters at the end of your session.
 - Save and Load for persistance.
 
-To get you started this release includes both a [demo notebook](https://githubtocolab.com/drob-xx/TopicTuner/blob/main/TopicTunerDemo.ipynb) and [API documentation](http://htmlpreview.github.io/?https://github.com/drob-xx/TopicTuner/blob/main/doc/topictuner.html)
+To get you started this release includes both a [demo notebook](https://githubtocolab.com/drob-xx/TopicTuner/blob/main/TopicTunerDemo.ipynb) and [API documentation](https://drob-xx.github.io/TopicTuner)
