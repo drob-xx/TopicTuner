@@ -1,11 +1,3 @@
-'''
-Created on Jan 4, 2023
-
-@author: Dan
-'''
-
-# https://github.com/lmcinnes/umap/issues/153
-
 import pytest
 from topictuner import TopicModelTuner
 from sklearn.datasets import fetch_20newsgroups
