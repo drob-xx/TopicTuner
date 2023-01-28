@@ -1,5 +1,6 @@
 from cuml.cluster import HDBSCAN
 from cuml.manifold import UMAP
+from cuml import TSNE
 from topictuner.topictuner import TopicModelTuner
 import numpy as np
 from typing import List
@@ -137,3 +138,25 @@ class cumlTopicModelTuner(TopicModelTuner):
             hdbscan_model=hdbscan_model,
             embedding_model=self.embedding_model,
         )
+        
+    def createVizReduction(self, method="UMAP"):
+        """
+        Uses the reducer to create a 2D reduction of the embeddings to use for a scatter-plot representation
+        """
+        if not np.all(self.embeddings):
+            raise AttributeError(
+                "No embeddings, either set embeddings= or call createEmbeddings()"
+            )
+        if method == "UMAP":
+            self.viz_reducer = deepcopy(self.reducer_model)
+            self.viz_reducer.n_components = 2
+            self.viz_reducer.fit(self.embeddings)
+        else:  # Only TSNE is supported
+            self.viz_reducer = TSNE(
+                n_components=2,
+                verbose=self.verbose,
+                random_state=self.__reducer_random_state,
+            )
+            self.viz_reducer.fit(self.embeddings)
+        self.viz_reduction = self.viz_reducer.embedding_
+
