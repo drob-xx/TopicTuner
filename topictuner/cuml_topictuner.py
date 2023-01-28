@@ -81,6 +81,29 @@ class cumlTopicModelTuner(TopicModelTuner):
             self.reducer_model.init = "random"  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
             self.reducer_model.random_state = np.uint64(rv)
 
+    def getHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None):
+        """
+        Exposed for convenience, returns a parameterized HDBSCAN model per
+        the current version in BaseHDBSCANTuner (with the params other than
+        min_cluster_size and min_samples)
+        """
+
+        min_cluster_size, min_samples = self._check_CS_SS(
+            min_cluster_size, min_samples, True
+        )
+
+        if self.hdbscan_model == None:
+            hdbscan_params = deepcopy(self.hdbscan_params)
+            hdbscan_params["min_cluster_size"] = min_cluster_size
+            hdbscan_params["min_samples"] = min_samples
+            hdbscan_model = HDBSCAN(**hdbscan_params)
+        else:
+            hdbscan_model = deepcopy(self.hdbscan_model)
+            hdbscan_model.min_cluster_size = min_cluster_size
+            hdbscan_model.min_samples = min_samples
+        return deepcopy(hdbscan_model)
+
+
     def getBERTopicModel(self, min_cluster_size: int = None, min_samples: int = None):
         """
         Returns a BERTopic model with the specified HDBSCAN parameters. The user is left
