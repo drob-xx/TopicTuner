@@ -178,7 +178,8 @@ class cumlTopicModelTuner(TopicModelTuner):
                 min_dist=0.0,
                 verbose=self.verbose,
                 random_state=self.__reducer_random_state,
-                init="random",
+                init="random", # bug in cuML UMAP requires this work-around for now - could have problematic implications
+                hash_input=True, # so that umap_model.embedding_ == output from umap_model.transform() which is what BERTopic uses 
             )
         
     def _getHDBSCAN(self, params):
