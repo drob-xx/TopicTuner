@@ -65,16 +65,16 @@ class cumlTopicModelTuner(TopicModelTuner):
             "Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to 'random'"
         )
 
-    # @property
-    # def reducer_random_state(self):
-    #     return self.__reducer_random_state
-    #
-    # @reducer_random_state.setter
-    # def reducer_random_state(self, rv: np.uint64):
-    #     if self.reducer_model != None:
-    #         self.__reducer_random_state = rv
-    #         self.reducer_model.init = "random"  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
-    #         self.reducer_model.random_state = np.uint64(rv)
+    @property
+    def reducer_random_state(self):
+        return self.__reducer_random_state
+    
+    @reducer_random_state.setter
+    def reducer_random_state(self, rv: np.uint64):
+        if self.reducer_model != None:
+            self.__reducer_random_state = rv
+            self.reducer_model.init = "random"  # added b/c of cuML UMAP bug - https://github.com/rapidsai/cuml/issues/5099#issuecomment-1396382450
+            self.reducer_model.random_state = np.uint64(rv)
 
     # def getHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None):
     #     """
