@@ -157,11 +157,11 @@ class TopicModelTuner(BaseHDBSCANTuner):
 
         hdbscan_model = self._getHDBSCAN(hdbscan_params)
 
-        reducer_model = deepcopy(self.reducer_model)
-        reducer_model.random_state = self.reducer_random_state
+        # reducer_model = deepcopy(self.reducer_model)
+        # reducer_model.random_state = self.reducer_random_state
 
         return BERTopic(
-            umap_model=reducer_model,
+            umap_model=self._getUMAP(),
             hdbscan_model=hdbscan_model,
             embedding_model=self.embedding_model,
         )
