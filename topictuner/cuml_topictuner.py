@@ -186,4 +186,6 @@ class cumlTopicModelTuner(TopicModelTuner):
             )
         
     def _getHDBSCAN(self, params):
-        return self._getHDBSCAN(**params)
+        return HDBSCAN(**params)
+    
+    
