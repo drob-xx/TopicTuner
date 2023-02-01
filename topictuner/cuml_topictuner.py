@@ -37,13 +37,7 @@ class cumlTopicModelTuner(TopicModelTuner):
 
         self.reducer_model = reducer_model
 
-        if reducer_random_state != None:
-            self.__reducer_random_state = np.uint64(reducer_random_state)
-        else:
-            self.__reducer_random_state = np.uint64(randrange(1000000))
-        if self.reducer_model == None:
-            # Use default BERTopic params
-            self.reducer_model = self._getUMAP()
+
         TopicModelTuner.__init__(
             self,
             embeddings=embeddings,
@@ -58,6 +52,14 @@ class cumlTopicModelTuner(TopicModelTuner):
             hdbscan_model=hdbscan_model,
             reducer_components=reducer_components,
         )
+        
+        if reducer_random_state != None:
+            self.__reducer_random_state = np.uint64(reducer_random_state)
+        else:
+            self.__reducer_random_state = np.uint64(randrange(1000000))
+        if self.reducer_model == None:
+            # Use default BERTopic params
+            self.reducer_model = self._getUMAP()
 
         logger.warning(
             "Due to a bug in the cuML implementation of UMAP the UMAP init parameter is set to 'random'"
