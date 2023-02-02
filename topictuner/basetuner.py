@@ -93,7 +93,7 @@ class BaseHDBSCANTuner(object):
         hdbscan_params["min_cluster_size"] = min_cluster_size
         hdbscan_params["min_samples"] = min_samples
 
-        return self._getHDBSCAN()
+        return self._getHDBSCAN(hdbscan_params)
 
 
     def runHDBSCAN(self, min_cluster_size: int = None, min_samples: int = None):
