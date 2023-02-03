@@ -6,9 +6,13 @@ logger.remove(0)
 logger.add(sys.stderr, format = "{time} : {level} : {message} ")
 logger.add('test_results.txt')
 
+TMT_MODEL_TYPE = "<class 'topictuner.topictuner.TopicModelTuner'>"
+
+
 try:
     from topictuner import cumlTopicModelTuner as TMT
-    logger.info('imported cumlTopicModelTuner')      
+    logger.info('imported cumlTopicModelTuner')    
+    TMT_MODEL_TYPE = "<class 'topictuner.cuml_topictuner.cumlTopicModelTuner'>"
 except:     
     from topictuner import TopicModelTuner as TMT
     logger.info('imported TopicModelTuner')      
@@ -223,7 +227,7 @@ def test_save_load(tmt_instance):
     logger.info('Running save_load')
     tmt_instance.save('tmt_instance')
     tmtModel = TMT.load('tmt_instance')
-    assert(str(type(tmtModel)) == "<class 'topictuner.topictuner.TopicModelTuner'>")
+    assert(str(type(tmtModel)) == TMT_MODEL_TYPE)
     
     
     
