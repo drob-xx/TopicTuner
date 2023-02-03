@@ -26,7 +26,7 @@ def documents():
 def tmt_instance(documents):
     logger.info('Creating TMT object')
     tmt = TMT()
-    tmt.reducer_random_state = 73433
+    tmt.reducer_random_state = np.uint(73433)
     tmt.bestParams = (6, 1)
     logger.info('Running createEmbeddings')
     tmt.createEmbeddings(documents)
