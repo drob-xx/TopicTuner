@@ -78,17 +78,6 @@ class BaseHDBSCANTuner(object):
             min_cluster_size, min_samples, True
         )
 
-        # if self.hdbscan_model == None:
-        #     hdbscan_params = deepcopy(self.hdbscan_params)
-        #     hdbscan_params["min_cluster_size"] = min_cluster_size
-        #     hdbscan_params["min_samples"] = min_samples
-        #     hdbscan_model = HDBSCAN(**hdbscan_params)
-        # else:
-        #     hdbscan_model = deepcopy(self.hdbscan_model)
-        #     hdbscan_model.min_cluster_size = min_cluster_size
-        #     hdbscan_model.min_samples = min_samples
-        # return deepcopy(hdbscan_model)
-
         hdbscan_params = deepcopy(self.hdbscan_params)
         hdbscan_params["min_cluster_size"] = min_cluster_size
         hdbscan_params["min_samples"] = min_samples

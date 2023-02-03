@@ -1,7 +1,8 @@
 from cuml.cluster import HDBSCAN
 from cuml.manifold import UMAP
 from cuml import TSNE
-from topictuner.topictuner import TopicModelTuner
+# from topictuner.topictuner import TopicModelTuner
+from topictuner import TopicModelTuner
 import numpy as np
 from typing import List
 from copy import copy, deepcopy
