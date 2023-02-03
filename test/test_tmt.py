@@ -1,22 +1,26 @@
-'''
-Created on Jan 4, 2023
-
-@author: Dan
-'''
-
-# https://github.com/lmcinnes/umap/issues/153
-
 import pytest
-from topictuner import TopicModelTuner
-from sklearn.datasets import fetch_20newsgroups
 from loguru import logger
 import sys
-import numpy as np
-import pandas as pd
 
 logger.remove(0)
 logger.add(sys.stderr, format = "{time} : {level} : {message} ")
 logger.add('test_results.txt')
+
+TMT_MODEL_TYPE = "<class 'topictuner.topictuner.TopicModelTuner'>"
+
+
+try:
+    from topictuner import cumlTopicModelTuner as TMT
+    logger.info('imported cumlTopicModelTuner')    
+    TMT_MODEL_TYPE = "<class 'topictuner.cuml_topictuner.cumlTopicModelTuner'>"
+except:     
+    from topictuner import TopicModelTuner as TMT
+    logger.info('imported TopicModelTuner')      
+from sklearn.datasets import fetch_20newsgroups
+
+import numpy as np
+import pandas as pd
+
 
 @pytest.fixture(scope="module")
 def documents():
@@ -25,8 +29,8 @@ def documents():
 @pytest.fixture(scope="module")
 def tmt_instance(documents):
     logger.info('Creating TMT object')
-    tmt = TopicModelTuner()
-    tmt.reducer_random_state = 73433
+    tmt = TMT()
+    tmt.reducer_random_state = np.uint(73433)
     tmt.bestParams = (6, 1)
     logger.info('Running createEmbeddings')
     tmt.createEmbeddings(documents)
@@ -35,18 +39,18 @@ def tmt_instance(documents):
     tmt.createVizReduction()
     return tmt
 
-def test_reducer_param_passing():
-    tmt = TopicModelTuner()
+def test_reducer_param_passing(tmt_instance):
+    tmt = TMT()
     bt = tmt.getBERTopicModel(6, 1)
     assert(bt.umap_model.random_state == tmt.reducer_random_state)
-    tmt = TopicModelTuner(reducer_random_state=42)
+    tmt = TMT(reducer_random_state=42)
     bt = tmt.getBERTopicModel(6, 1)
     assert(bt.umap_model.random_state == tmt.reducer_random_state)
     assert(bt.umap_model.random_state==42)
 
 def test_bestParams(tmt_instance):
         with pytest.raises(ValueError) : # error no vals set, no bestParams
-            new_instance = TopicModelTuner()
+            new_instance = TMT
             new_instance._check_CS_SS(None, None, True)
         tmt_instance.bestParams = (22, 3)
         cs, ss = tmt_instance._check_CS_SS(None, None, True)
@@ -71,8 +75,8 @@ def test_bestParams(tmt_instance):
         assert(tmt_instance.bestParams.cs == 4)
         assert(tmt_instance.bestParams.ss == 3)
 
-def test_create_embeddings():
-    tmt = TopicModelTuner()
+def test_create_embeddings(tmt_instance):
+    tmt = TMT()
     with pytest.raises(AttributeError):
         tmt.createEmbeddings() # no self.docs no docs
     assert(tmt.docs == None)
@@ -180,7 +184,7 @@ def test_summarizeResults(tmt_instance):
     
 def test_VizReduction(tmt_instance):
     logger.info('Running test_VizReduction')
-    tmt = TopicModelTuner()
+    tmt = TMT()
     with pytest.raises(AttributeError):
         tmt.getVizCoords()
     tmt_instance.createVizReduction('UMAP')
@@ -215,15 +219,15 @@ def test_get_wrap_BERTopicModel(tmt_instance):
     newDocs = ["doc one", "doc two", "doc three"]
     preds = btModel.transform(newDocs)
     assert(len(preds[1]) == 3)
-    tmtModel = TopicModelTuner.wrapBERTopicModel(btModel)
+    tmtModel = TMT.wrapBERTopicModel(btModel)
     assert(str(type(tmtModel)) == "<class 'topictuner.topictuner.TopicModelTuner'>")
     assert(str(type(btModel)) == "<class 'bertopic._bertopic.BERTopic'>")
 
 def test_save_load(tmt_instance):
     logger.info('Running save_load')
     tmt_instance.save('tmt_instance')
-    tmtModel = TopicModelTuner.load('tmt_instance')
-    assert(str(type(tmtModel)) == "<class 'topictuner.topictuner.TopicModelTuner'>")
+    tmtModel = TMT.load('tmt_instance')
+    assert(str(type(tmtModel)) == TMT_MODEL_TYPE)
     
     
     

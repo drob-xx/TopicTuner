@@ -106,14 +106,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
             self.__reducer_random_state = np.uint64(randrange(1000000))
         if self.reducer_model == None:
             # Use default BERTopic params
-            self.reducer_model = UMAP(
-                n_components=self.reducer_components,
-                metric="cosine",
-                n_neighbors=5,
-                min_dist=0.0,
-                verbose=self.verbose,
-                random_state=self.__reducer_random_state,
-            )
+            self.reducer_model = self._getUMAP()
 
     @property
     def reducer_random_state(self):
@@ -162,13 +155,13 @@ class TopicModelTuner(BaseHDBSCANTuner):
         hdbscan_params["min_cluster_size"] = min_cluster_size
         hdbscan_params["min_samples"] = min_samples
 
-        hdbscan_model = HDBSCAN(**hdbscan_params)
+        hdbscan_model = self._getHDBSCAN(hdbscan_params)
 
-        reducer_model = deepcopy(self.reducer_model)
-        reducer_model.random_state = self.reducer_random_state
+        # reducer_model = deepcopy(self.reducer_model)
+        # reducer_model.random_state = self.reducer_random_state
 
         return BERTopic(
-            umap_model=reducer_model,
+            umap_model=self._getUMAP(),
             hdbscan_model=hdbscan_model,
             embedding_model=self.embedding_model,
         )
@@ -212,11 +205,7 @@ class TopicModelTuner(BaseHDBSCANTuner):
             self.viz_reducer.n_components = 2
             self.viz_reducer.fit(self.embeddings)
         else:  # Only TSNE is supported
-            self.viz_reducer = TSNE(
-                n_components=2,
-                verbose=self.verbose,
-                random_state=self.__reducer_random_state,
-            )
+            self.viz_reducer = self._getTSNE()
             self.viz_reducer.fit(self.embeddings)
         self.viz_reduction = self.viz_reducer.embedding_
 
@@ -230,6 +219,27 @@ class TopicModelTuner(BaseHDBSCANTuner):
                 "Visualization reduction not performed, call createVizReduction first"
             )
         return self.viz_reducer.embedding_[:, 0], self.viz_reducer.embedding_[:, 1]
+
+    def _getHDBSCAN(self, params):
+        return HDBSCAN(**params)
+    
+    def _getUMAP(self):
+        return UMAP(
+                n_components=self.reducer_components,
+                metric="cosine",
+                n_neighbors=5,
+                min_dist=0.0,
+                verbose=self.verbose,
+                random_state=self.__reducer_random_state,
+            )
+
+    def _getTSNE(self):
+        return TSNE(
+                n_components=2,
+                verbose=self.verbose,
+                random_state=self.__reducer_random_state,
+            )
+
 
     def save(self, fname, save_docs=True, save_embeddings=True, save_viz_reducer=True):
         """
@@ -262,3 +272,5 @@ class TopicModelTuner(BaseHDBSCANTuner):
             restored = joblib.load(file)
             # restored._paramPair = namedtuple("paramPair", "cs ss")
             return restored
+        
+
